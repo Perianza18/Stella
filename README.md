@@ -1,3 +1,3 @@
 # Stella
 
-by Elias Perianza Robles and Catherine Gonzalez Diaz
+by Catherine Gonzalez Diaz and Elias Perianza Robles 
