@@ -79,3 +79,4 @@ Pesaje 2: Con esos 9 sospechosos, se pesan 3 contra 3, dejando 3 fuera.
 Pesaje 3: De los 3 restantes, se pesa 1 contra 1, dejando 1 fuera, revelando al polizón con un 100% de certeza.
 Por qué funciona: Traduce matemáticas discretas de manera intuitiva y anula intentos de ensayo y error. El sistema castiga activamente estrategias subóptimas como la búsqueda binaria (partir a la mitad), obligando al usuario a descubrir que dividir entre tres maximiza la información.
 
+Hola
