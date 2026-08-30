@@ -1,4 +1,4 @@
-"""Stella | Level 4 (Draft 2) | CAMBIO
+"""Stella | Level 4 (Draft 2) |
 
 Project: Stella
 Author:  Elias Perianza Robles, Dr. Peri
