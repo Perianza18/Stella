@@ -51,9 +51,11 @@ def pedir_intento() -> list[str]:
 
 
 def mostrar_feedback(verdes: int, amarillos: int) -> None:
-    """Print the pegs earned by a guess: verde, amarillo y gris."""
+    """Print the pegs earned by a guess, sin reusar los nombres de los colores."""
     grises = CODE_LENGTH - verdes - amarillos
-    print(f"Verde: {verdes}  Amarillo: {amarillos}  Gris: {grises}")
+    print(f"🟢 Posición correcta: {verdes}   "
+          f"🟡 Color correcto, lugar incorrecto: {amarillos}   "
+          f"⚪ No está en el código: {grises}")
 
 
 def jugar_fase(numero_fase: int) -> bool:
@@ -89,7 +91,8 @@ def jugar_fase(numero_fase: int) -> bool:
 def jugar_nivel_1() -> None:
     """Jugar el Nivel 1 completo: dos fases consecutivas de doble cerradura."""
     print("=== Nivel 1: Doble Cerradura ===")
-    print("Stella debe abrir el sistema de seguridad Zyx-7 para llegar al comerciante.\n")
+    print("Stella debe abrir el sistema de seguridad Zyx-7 para llegar al comerciante.")
+    print("🟢 = color y posición correctos   🟡 = color correcto, lugar incorrecto   ⚪ = el color no está en el código\n")
 
     while True:
         if jugar_fase(1) and jugar_fase(2):
