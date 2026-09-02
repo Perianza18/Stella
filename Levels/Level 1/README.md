@@ -1,3 +1,11 @@
 # Level 1 — Doble Cerradura (Mastermind)
 
-Código pendiente. Diseño en `../../Propuesta de Niveles/01 - Doble Cerradura.md`.
+Diseño en `../../Propuesta de Niveles/01 - Doble Cerradura.md`.
+
+Código: `mastermind.py`.
+
+Para jugar:
+
+```bash
+python3 mastermind.py
+```

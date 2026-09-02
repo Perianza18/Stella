@@ -2,4 +2,10 @@
 
 Diseño en `../../Propuesta de Niveles/04 - El Saludo de los Krik.md`.
 
-Prototipo existente: `Draft1.py`.
+Código: `Draft1.py` (prototipo, sin pulir todavía).
+
+Para jugar:
+
+```bash
+python3 Draft1.py
+```
