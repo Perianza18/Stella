@@ -1,3 +1,11 @@
-# Level 3 — The Collector
+# Level 3 — The Collector (Nim 2D / Chomp)
 
-Code pending. Design doc: `../../Level Design/03 - The Collector.md`.
+Design doc: `../../Level Design/03 - The Collector.md`.
+
+Code: `coleccionista.py`.
+
+To play:
+
+```bash
+python3 coleccionista.py
+```

@@ -1,6 +1,6 @@
 """
 Stella
-Level 5 - Las 200 Gemas
+Level 5 - The 200 Gems
 """
 from __future__ import annotations
 
@@ -8,8 +8,8 @@ GEMAS_INICIALES = 200
 
 
 def calcular_posiciones_perdedoras(maximo: int) -> list[bool]:
-    """Para cada cantidad de gemas restantes de 0 a maximo, indica si el jugador en
-    turno pierde jugando ambos de forma óptima (posición perdedora / "número maldito").
+    """For each amount of gems remaining from 0 to maximo, mark whether the player to
+    move loses under optimal play from both sides (losing position / "cursed number").
     """
     es_perdedora = [False] * (maximo + 1)
     for n in range(1, maximo + 1):
@@ -28,62 +28,62 @@ ES_PERDEDORA = calcular_posiciones_perdedoras(GEMAS_INICIALES)
 
 
 def limite_de_turno(restantes: int) -> int:
-    """Máximo de gemas que se pueden tomar: la mitad redondeada hacia abajo,
-    salvo que solo quede 1 gema, en cuyo caso esa última sí se puede tomar."""
+    """Maximum gems that can be taken: half, rounded down, unless only 1 gem is
+    left, in which case that last one can be taken."""
     return max(1, restantes // 2)
 
 
 def movimiento_optimo(restantes: int) -> int:
-    """Cuántas gemas toma el Guardián jugando sin errores matemáticos."""
+    """How many gems the Guardian takes, playing without any mathematical mistakes."""
     limite = limite_de_turno(restantes)
     for k in range(1, limite + 1):
         resto = restantes - k
         if resto == 0 or ES_PERDEDORA[resto]:
             return k
-    return 1  # el Guardián ya está en una posición perdida; cualquier jugada da igual
+    return 1  # the Guardian is already in a lost position; any move is equally bad
 
 
 def pedir_cantidad(restantes: int) -> int:
     limite = limite_de_turno(restantes)
     while True:
         try:
-            cantidad = int(input(f"Quedan {restantes} gemas. ¿Cuántas tomas? (1-{limite}): "))
+            cantidad = int(input(f"{restantes} gems left. How many do you take? (1-{limite}): "))
             if 1 <= cantidad <= limite:
                 return cantidad
         except ValueError:
             pass
-        print(f"Elige un número entre 1 y {limite}.")
+        print(f"Choose a number between 1 and {limite}.")
 
 
 def jugar_ronda() -> str:
-    """Juega una ronda completa. Devuelve 'Stella' o 'Guardian' según quién gane."""
+    """Play one complete round. Returns 'Stella' or 'Guardian' depending on who wins."""
     restantes = GEMAS_INICIALES
 
     while True:
         cantidad = pedir_cantidad(restantes)
         restantes -= cantidad
-        print(f"Stella toma {cantidad}. Quedan {restantes} gemas.")
+        print(f"Stella takes {cantidad}. {restantes} gems left.")
         if restantes == 0:
-            print("\n¡Stella toma la última gema! El Guardián entrega el mapa estelar.")
+            print("\nStella takes the last gem! The Guardian hands over the star map.")
             return 'Stella'
 
         cantidad_guardian = movimiento_optimo(restantes)
         restantes -= cantidad_guardian
-        print(f"El Guardián toma {cantidad_guardian}. Quedan {restantes} gemas.")
+        print(f"The Guardian takes {cantidad_guardian}. {restantes} gems left.")
         if restantes == 0:
-            print("\nEl Guardián toma la última gema. Esta ronda es suya.")
+            print("\nThe Guardian takes the last gem. This round is his.")
             return 'Guardian'
 
 
 def jugar_nivel_5() -> None:
-    print("=== Nivel 5: Las 200 Gemas ===")
-    print("El Guardián del Templo reta a Stella: quien tome la última gema se lleva el mapa estelar.")
-    print(f"Hay {GEMAS_INICIALES} gemas. En cada turno puedes tomar entre 1 y la mitad de lo que quede.\n")
+    print("=== Level 5: The 200 Gems ===")
+    print("The Temple Guardian challenges Stella: whoever takes the last gem gets the star map.")
+    print(f"There are {GEMAS_INICIALES} gems. Each turn you can take between 1 and half of what's left.\n")
 
     while True:
         jugar_ronda()
-        otra = input("\n¿Otra ronda? (s/n): ").strip().lower()
-        if otra != 's':
+        otra = input("\nAnother round? (y/n): ").strip().lower()
+        if otra != 'y':
             return
         print()
 

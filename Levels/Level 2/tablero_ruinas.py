@@ -1,6 +1,6 @@
 """
 Stella
-Level 2 - El Tablero de las Ruinas
+Level 2 - The Ruins Board
 """
 from __future__ import annotations
 import random
@@ -10,7 +10,7 @@ CENTRO = (TAMANO // 2, TAMANO // 2)
 LIBRE = '.'
 BLOQUEADO = '#'
 
-# Forma base del tetrominó en "L": (fila, columna) relativas.
+# Base shape of the "L" tetromino: (row, column) relative coordinates.
 FORMA_BASE = [(0, 0), (1, 0), (2, 0), (2, 1)]
 
 Celda = tuple[int, int]
@@ -18,24 +18,24 @@ Orientacion = tuple[Celda, ...]
 
 
 def normalizar(celdas: list[Celda]) -> Orientacion:
-    """Desplaza las celdas para que la esquina superior-izquierda quede en (0, 0)."""
+    """Shift the given cells so the top-left corner lands on (0, 0)."""
     min_r = min(r for r, _ in celdas)
     min_c = min(c for _, c in celdas)
     return tuple(sorted((r - min_r, c - min_c) for r, c in celdas))
 
 
 def rotar(celdas: list[Celda]) -> list[Celda]:
-    """Rota 90 grados las celdas dadas."""
+    """Rotate the given cells 90 degrees."""
     return [(c, -r) for r, c in celdas]
 
 
 def reflejar(celdas: list[Celda]) -> list[Celda]:
-    """Refleja las celdas dadas (espejo horizontal)."""
+    """Reflect the given cells (horizontal mirror)."""
     return [(r, -c) for r, c in celdas]
 
 
 def generar_orientaciones() -> list[Orientacion]:
-    """Genera las 8 orientaciones distintas del tetrominó en L (4 rotaciones x 2 reflejos)."""
+    """Generate the 8 distinct orientations of the L tetromino (4 rotations x 2 reflections)."""
     formas: set[Orientacion] = set()
     for base in (FORMA_BASE, reflejar(FORMA_BASE)):
         actual = base
@@ -50,7 +50,7 @@ ORIENTACIONES_VALIDAS = set(ORIENTACIONES)
 
 
 def dibujar_forma(orientacion: Orientacion) -> str:
-    """Devuelve un dibujo ASCII pequeño de una orientación, para elegirla más fácil."""
+    """Return a small ASCII drawing of one orientation, to make it easier to pick."""
     max_r = max(r for r, _ in orientacion)
     max_c = max(c for _, c in orientacion)
     celdas = set(orientacion)
@@ -60,7 +60,7 @@ def dibujar_forma(orientacion: Orientacion) -> str:
 
 
 def tablero_nuevo() -> list[list[str]]:
-    """Crea el tablero 7x7 con la casilla central bloqueada."""
+    """Create the 7x7 board with the center square blocked."""
     tablero = [[LIBRE] * TAMANO for _ in range(TAMANO)]
     tablero[CENTRO[0]][CENTRO[1]] = BLOQUEADO
     return tablero
@@ -102,7 +102,7 @@ def movimientos_disponibles(tablero: list[list[str]]) -> list[tuple[Orientacion,
 
 
 def reflejar_movimiento(orientacion: Orientacion, ancla: Celda) -> tuple[Orientacion, Celda]:
-    """Refleja un movimiento 180 grados respecto al centro del tablero (Estrategia del Espejo)."""
+    """Reflect a move 180 degrees about the center of the board (Mirror Strategy)."""
     reflejadas = [(2 * CENTRO[0] - r, 2 * CENTRO[1] - c)
                   for r, c in celdas_de_movimiento(orientacion, ancla)]
     min_r = min(r for r, _ in reflejadas)
@@ -113,11 +113,11 @@ def reflejar_movimiento(orientacion: Orientacion, ancla: Celda) -> tuple[Orienta
 
 def turno_alien(tablero: list[list[str]], ultimo_movimiento_stella: tuple[Orientacion, Celda] | None,
                  alien_es_segundo: bool) -> tuple[Orientacion, Celda] | None:
-    """Juega el turno del alienígena. Devuelve el movimiento, o None si no puede colocar ninguno.
+    """Play the alien's turn. Returns the move made, or None if it can't place any piece.
 
-    Si el alienígena quedó de segundo jugador (porque Stella empezó), aplica la Estrategia
-    del Espejo sobre el último movimiento de Stella. Si el alienígena es el primero en mover,
-    no tiene ninguna estrategia ganadora posible, así que coloca una pieza válida al azar.
+    If the alien ended up as the second player (because Stella went first), it applies
+    the Mirror Strategy to Stella's last move. If the alien moves first, it has no
+    possible winning strategy, so it places a random valid piece.
     """
     if alien_es_segundo and ultimo_movimiento_stella is not None:
         orientacion, ancla = reflejar_movimiento(*ultimo_movimiento_stella)
@@ -134,32 +134,32 @@ def turno_alien(tablero: list[list[str]], ultimo_movimiento_stella: tuple[Orient
 
 
 def mostrar_ejemplo_pieza() -> None:
-    """Muestra una sola vez, al inicio del nivel, cómo luce una pieza en L."""
-    print("Cada pieza ocupa 4 casillas conectadas en forma de L (se puede rotar y reflejar). Ejemplo:")
+    """Show once, at the start of the level, what an L piece looks like."""
+    print("Each piece occupies 4 connected squares in an L shape (it can be rotated and reflected). Example:")
     for fila in dibujar_forma(ORIENTACIONES[0]).split('\n       '):
         print(f"   {fila}")
-    print("Para jugar, simplemente dime las 4 casillas (fila,col) que quieres ocupar en el tablero.\n")
+    print("To play, just tell me the 4 squares (row,col) you want to occupy on the board.\n")
 
 
 def elegir_celdas() -> list[Celda]:
-    """Pide las 4 casillas (fila,col) que el jugador quiere ocupar."""
+    """Ask for the 4 squares (row,col) the player wants to occupy."""
     while True:
-        entrada = input("Casillas a ocupar, ej. '2,5 3,5 4,5 4,6': ").strip()
+        entrada = input("Squares to occupy, e.g. '2,5 3,5 4,5 4,6': ").strip()
         try:
             celdas = []
             for par in entrada.split():
                 fr_txt, fc_txt = par.split(',')
                 celdas.append((int(fr_txt), int(fc_txt)))
             if len(celdas) != 4 or len(set(celdas)) != 4:
-                print("Debes dar exactamente 4 casillas distintas.")
+                print("You must give exactly 4 distinct squares.")
                 continue
             return celdas
         except ValueError:
-            print("Formato inválido. Usa 'fila,col' para cada casilla, separadas por espacios (ej. '2,5 3,5 4,5 4,6').")
+            print("Invalid format. Use 'row,col' for each square, separated by spaces (e.g. '2,5 3,5 4,5 4,6').")
 
 
 def turno_stella(tablero: list[list[str]]) -> tuple[Orientacion, Celda] | None:
-    """Pide a Stella su movimiento. Devuelve el movimiento hecho, o None si no puede colocar ninguno."""
+    """Ask Stella for her move. Returns the move made, or None if she can't place any piece."""
     if not movimientos_disponibles(tablero):
         return None
 
@@ -167,14 +167,14 @@ def turno_stella(tablero: list[list[str]]) -> tuple[Orientacion, Celda] | None:
         celdas = elegir_celdas()
         orientacion = normalizar(celdas)
         if orientacion not in ORIENTACIONES_VALIDAS:
-            print("Esas 4 casillas no forman una pieza en L válida (ni rotada ni reflejada). Intenta de nuevo.")
+            print("Those 4 squares don't form a valid L piece (rotated or reflected). Try again.")
             continue
 
         min_r = min(r for r, _ in celdas)
         min_c = min(c for _, c in celdas)
         ancla = (min_r, min_c)
         if not movimiento_valido(tablero, orientacion, ancla):
-            print("Alguna de esas casillas está ocupada, es el centro bloqueado, o se sale del tablero. Intenta de nuevo.")
+            print("One of those squares is occupied, is the blocked center, or falls outside the board. Try again.")
             continue
 
         colocar(tablero, orientacion, ancla, 'S')
@@ -182,17 +182,17 @@ def turno_stella(tablero: list[list[str]]) -> tuple[Orientacion, Celda] | None:
 
 
 def preguntar_quien_empieza() -> bool:
-    """Pregunta quién coloca la primera pieza. Devuelve True si empieza el jugador."""
-    print("\nEl nómada te mira fijamente: 'Elige bien quién da el primer paso...'")
-    respuesta = input("¿Quién coloca la primera pieza: tú o el alienígena? (jugador/alien) [alien]: ")
-    return respuesta.strip().lower() in ('yo', 'jugador', 'y', 'j')
+    """Ask who places the first piece. Returns True if the player goes first."""
+    print("\nThe nomad stares at you: 'Choose wisely who takes the first step...'")
+    respuesta = input("Who places the first piece: you or the alien? (you/alien) [alien]: ")
+    return respuesta.strip().lower() in ('you', 'player', 'y', 'p')
 
 
 def jugar_nivel_2() -> str:
-    """Juega el Nivel 2 completo. Devuelve 'Stella' o 'Alien' según quién gane."""
-    print("=== Nivel 2: El Tablero de las Ruinas ===")
-    print("El nómada alienígena desafía a Stella al juego sagrado de los antiguos constructores.")
-    print(f"Tablero {TAMANO}x{TAMANO}, casilla central bloqueada. Pierde quien no pueda colocar una pieza.\n")
+    """Play the complete Level 2. Returns 'Stella' or 'Alien' depending on who wins."""
+    print("=== Level 2: The Ruins Board ===")
+    print("The nomad alien challenges Stella to the sacred game of the ancient builders.")
+    print(f"{TAMANO}x{TAMANO} board, center square blocked. Whoever can't place a piece loses.\n")
     mostrar_ejemplo_pieza()
 
     tablero = tablero_nuevo()
@@ -207,16 +207,16 @@ def jugar_nivel_2() -> str:
         if turno_de_stella:
             movimiento_stella = turno_stella(tablero)
             if movimiento_stella is None:
-                print("\nStella no puede colocar más piezas. El alienígena gana.")
+                print("\nStella can't place any more pieces. The alien wins.")
                 return 'Alien'
             ultimo_movimiento_stella = movimiento_stella
             mostrar_tablero(tablero)
         else:
             movimiento_alien = turno_alien(tablero, ultimo_movimiento_stella, alien_es_segundo)
             if movimiento_alien is None:
-                print("\nEl alienígena no puede colocar más piezas. ¡Stella gana!")
+                print("\nThe alien can't place any more pieces. Stella wins!")
                 return 'Stella'
-            print(f"\nEl alienígena coloca una pieza en {movimiento_alien[1]}.")
+            print(f"\nThe alien places a piece at {movimiento_alien[1]}.")
             mostrar_tablero(tablero)
 
         turno_de_stella = not turno_de_stella
