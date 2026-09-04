@@ -1,10 +1,10 @@
-# Level 1 — Doble Cerradura (Mastermind)
+# Level 1 — Double Lock (Mastermind)
 
-Diseño en `../../Propuesta de Niveles/01 - Doble Cerradura.md`.
+Design doc: `../../Level Design/01 - Double Lock.md`.
 
-Código: `mastermind.py`.
+Code: `mastermind.py`.
 
-Para jugar:
+To play:
 
 ```bash
 python3 mastermind.py

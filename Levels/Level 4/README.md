@@ -1,10 +1,10 @@
-# Level 4 — El Saludo de los Krik (Nim)
+# Level 4 — The Krik Greeting (Nim)
 
-Diseño en `../../Propuesta de Niveles/04 - El Saludo de los Krik.md`.
+Design doc: `../../Level Design/04 - The Krik Greeting.md`.
 
-Código: `Draft1.py` (prototipo, sin pulir todavía).
+Code: `Draft1.py` (prototype, not polished yet).
 
-Para jugar:
+To play:
 
 ```bash
 python3 Draft1.py

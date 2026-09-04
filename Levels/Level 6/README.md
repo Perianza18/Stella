@@ -1,3 +1,3 @@
-# Level 6 — La Aduana Galáctica
+# Level 6 — Galactic Customs
 
-Código pendiente. Diseño en `../../Propuesta de Niveles/06 - La Aduana Galactica.md`.
+Code pending. Design doc: `../../Level Design/06 - Galactic Customs.md`.

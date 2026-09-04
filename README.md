@@ -4,16 +4,16 @@ Stella is an astronaut otter who loses her favorite rock in a space anomaly and 
 
 ## Project structure
 
-- `Propuesta de Niveles/` — level design docs (story, rules, strategy), written in Spanish. Start at `00 - Historia Base e Indice.md`.
+- `Level Design/` — level design docs (story, rules, strategy). Start at `00 - Story & Level Index.md`.
 - `Levels/` — code for each level, one folder per level (`Level 1` … `Level 6`), each with a `README.md` pointing to its design doc.
 
 ## Levels status
 
 | # | Level | Mechanic | Status |
 |---|-------|----------|--------|
-| 1 | Doble Cerradura | Mastermind | 🚧 In progress — playable console prototype (`mastermind.py`) |
-| 2 | El Tablero de las Ruinas | Grid placement (combinatorial game theory) | ⬜ Not started |
-| 3 | El Coleccionista | Nim 2D / Chomp | ⬜ Not started |
-| 4 | El Saludo de los Krik | Nim | 🚧 In progress — early draft (`Draft1.py`) |
-| 5 | Las 200 Gemas | Subtraction game | ⬜ Not started |
-| 6 | La Aduana Galáctica | Ternary search | ⬜ Not started |
+| 1 | Double Lock | Mastermind | 🚧 In progress — playable console prototype (`mastermind.py`) |
+| 2 | The Ruins Board | Grid placement (combinatorial game theory) | 🚧 In progress — playable console prototype (`tablero_ruinas.py`) |
+| 3 | The Collector | Nim 2D / Chomp | ⬜ Not started |
+| 4 | The Krik Greeting | Nim | 🚧 In progress — early draft (`Draft1.py`) |
+| 5 | The 200 Gems | Subtraction game | 🚧 In progress — playable console prototype (`gemas.py`) |
+| 6 | Galactic Customs | Ternary search | ⬜ Not started |

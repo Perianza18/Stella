@@ -1,10 +1,10 @@
-# Level 5 — Las 200 Gemas
+# Level 5 — The 200 Gems
 
-Diseño en `../../Propuesta de Niveles/05 - Las 200 Gemas.md`.
+Design doc: `../../Level Design/05 - The 200 Gems.md`.
 
-Código: `gemas.py`.
+Code: `gemas.py`.
 
-Para jugar:
+To play:
 
 ```bash
 python3 gemas.py

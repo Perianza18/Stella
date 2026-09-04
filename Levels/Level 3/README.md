@@ -1,3 +1,3 @@
-# Level 3 — El Coleccionista
+# Level 3 — The Collector
 
-Código pendiente. Diseño en `../../Propuesta de Niveles/03 - El Coleccionista.md`.
+Code pending. Design doc: `../../Level Design/03 - The Collector.md`.

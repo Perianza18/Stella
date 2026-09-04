@@ -1,10 +1,10 @@
-# Level 2 — El Tablero de las Ruinas
+# Level 2 — The Ruins Board
 
-Diseño en `../../Propuesta de Niveles/02 - El Tablero de las Ruinas.md`.
+Design doc: `../../Level Design/02 - The Ruins Board.md`.
 
-Código: `tablero_ruinas.py`.
+Code: `tablero_ruinas.py`.
 
-Para jugar:
+To play:
 
 ```bash
 python3 tablero_ruinas.py
