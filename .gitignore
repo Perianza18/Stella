@@ -1,0 +1,55 @@
+# macOS
+.DS_Store
+
+# Python bytecode and caches
+__pycache__/
+*.pyc
+*.pyo
+
+# Python virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# IDE and editor settings
+.idea/
+.vscode/
+.vs/
+*.suo
+*.tmp
+*.user
+*.userprefs
+
+# Unity-generated directories
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+[Mm]emoryCaptures/
+[Rr]ecordings/
+[Ee]xported[Oo]bj/
+.gradle/
+
+# Unity-generated project files
+*.csproj
+*.sln
+*.slnx
+*.unityproj
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+sysinfo.txt
+crashlytics-build.properties
+
+# Unity build artifacts
+*.apk
+*.aab
+*.app
