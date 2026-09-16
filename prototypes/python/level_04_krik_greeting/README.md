@@ -1,6 +1,6 @@
 # Level 4 — The Krik Greeting (Nim)
 
-Design doc: `../../Level Design/04 - The Krik Greeting.md`.
+Design doc: [`docs/game-design/levels/04-krik-greeting.md`](../../../docs/game-design/levels/04-krik-greeting.md).
 
 Code: `Draft1.py` (prototype, not polished yet).
 

@@ -1,6 +1,6 @@
 # Level 3 — The Collector (Nim 2D / Chomp)
 
-Design doc: `../../Level Design/03 - The Collector.md`.
+Design doc: [`docs/game-design/levels/03-the-collector.md`](../../../docs/game-design/levels/03-the-collector.md).
 
 Code: `coleccionista.py`.
 

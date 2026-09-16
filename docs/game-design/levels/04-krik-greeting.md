@@ -23,4 +23,4 @@ Force multiples of 4. Starting with 20 crystals, Stella must give up the first t
 It removes luck 100%. The system punishes randomness through modular logic, forcing the player to work out the heuristic on their own.
 
 ## Implementation note
-A prototype of this mechanic (a turn-based subtraction game) already exists at `Levels/Level 4/Draft1.py`.
+A prototype of this mechanic (a turn-based subtraction game) already exists at `prototypes/python/level_04_krik_greeting/Draft1.py`.
