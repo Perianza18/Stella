@@ -2,10 +2,10 @@
 
 Design doc: [`docs/game-design/levels/04-the-krik-greeting.md`](../../../docs/game-design/levels/04-the-krik-greeting.md).
 
-Code: `Draft1.py` (prototype, not polished yet).
+Code: `krik_greeting.py`.
 
 To play:
 
 ```bash
-python3 Draft1.py
+python3 krik_greeting.py
 ```

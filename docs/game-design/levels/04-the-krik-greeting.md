@@ -55,7 +55,7 @@ The player should discover that starting order matters, consecutive moves pair n
 
 ### Python Prototype
 
-The existing generic draft at `prototypes/python/level_04_krik_greeting/Draft1.py` is scheduled to be replaced by a Stella-specific implementation.
+Implemented in [`prototypes/python/level_04_krik_greeting/krik_greeting.py`](../../../prototypes/python/level_04_krik_greeting/krik_greeting.py), with game rules separated from console input and deterministic optimal Krik play.
 
 ### Unity
 
