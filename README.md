@@ -1,6 +1,6 @@
 # Stella
 
-Stella is an astronaut otter who loses her favorite rock in a space anomaly and sets off across 6 levels to find it. Each level is a narrative wrapper around a different logic / game-theory puzzle.
+Stella is an astronaut otter who loses her favorite rock in a space anomaly and sets off across 6 levels to find it. Each level is a narrative wrapper around a different logic / game-theory puzzle. Change
 
 ## Project structure
 
