@@ -8,6 +8,7 @@ Stella is a 2D pixel-art mathematical adventure about an astronaut otter searchi
 
 - Product vision, MVP scope, canonical story, and six level specifications are documented.
 - All six levels have playable Python reference prototypes.
+- Core mathematical behavior is covered by lightweight Python regression tests.
 - Unity development has not started, and no Unity project has been created.
 
 ## Project Structure
@@ -34,3 +35,11 @@ Stella is a 2D pixel-art mathematical adventure about an astronaut otter searchi
 | 4 | [The Krik Greeting](docs/game-design/levels/04-the-krik-greeting.md) | Modular subtraction strategy | [`krik_greeting.py`](prototypes/python/level_04_krik_greeting/krik_greeting.py) | Not started |
 | 5 | [The 200 Gems](docs/game-design/levels/05-the-200-gems.md) | Variable-bound subtraction game | [`gemas.py`](prototypes/python/level_05_200_gems/gemas.py) | Not started |
 | 6 | [Galactic Customs](docs/game-design/levels/06-galactic-customs.md) | Three-way partitioning | [`aduana_galactica.py`](prototypes/python/level_06_galactic_customs/aduana_galactica.py) | Not started |
+
+## Run the Prototype Tests
+
+The test suite uses only Python's standard library:
+
+```bash
+python3 -m unittest discover -s prototypes/python/tests -v
+```

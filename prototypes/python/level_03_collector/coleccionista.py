@@ -9,6 +9,13 @@ FILA_INICIAL = 7
 COLUMNA_INICIAL = 10
 
 
+def es_posicion_perdedora(fila: int, columna: int) -> bool:
+    """Return whether the player to move has no forced win from this position."""
+    if fila < 0 or columna < 0:
+        raise ValueError("coordinates cannot be negative")
+    return fila == columna
+
+
 def movimiento_optimo(fila: int, columna: int) -> tuple[int, int]:
     """Return the Collector's next position.
 

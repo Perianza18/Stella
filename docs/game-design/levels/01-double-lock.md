@@ -45,7 +45,7 @@ The system generates a four-colour code, scores exact matches first, then scores
 
 ### Anti-Luck / Anti-Bruteforce Behaviour
 
-If the player guesses the first lock's code on the first submission, that uncounted beginner's-luck result causes the system to replace the code. Normal play then continues, requiring evidence-based deduction rather than a one-shot lucky pass.
+If the player guesses a lock's code on its first submission, that uncounted beginner's-luck result causes the system to replace the code. Normal play then continues, requiring evidence-based deduction rather than a one-shot lucky pass.
 
 ### What the Player Is Expected to Discover
 
