@@ -12,6 +12,15 @@ Take the final gem before the Guardian does.
 
 On each of Stella's turns, the player chooses how many gems to take from the remaining pile. The interface should retain useful numerical attempt history so patterns can emerge across retries.
 
+## Visual and UI Direction
+
+- Set the game at a Vrex temple or mineral market that also feels like an ancient archive: carved structures, stored valuables, robed figures, and old technological displays can coexist around the Guardian's altar.
+- Treat the gems as mineral coins or catalogued offerings. Represent the large pile symbolically while keeping the exact remaining total prominent and unambiguous; the player should not need to count 200 individual sprites.
+- Show the current legal range and selected amount beside large pointer-friendly amount controls and an explicit confirm action.
+- Keep a visible record of Stella's and the Guardian's previous moves and the totals they left behind. This history supports observation without identifying special totals or revealing the recurrence.
+- Use an old terminal or LED-like inventory display to reinforce the Guardian's record-keeping role. The Guardian may react to moves, but the display must not grade a move as strategically good or bad.
+- Prioritize numerical legibility over decorative piles, market props, or animation, especially on mobile screens.
+
 ## Rules
 
 - The game begins with 200 gems.

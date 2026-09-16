@@ -12,6 +12,15 @@ Open both security locks by deducing each hidden four-colour code before its att
 
 The player selects one colour for each of four slots, submits the guess, and reads the positional and colour feedback returned by the lock.
 
+## Visual and UI Direction
+
+- Present the puzzle as a close-up, first-person view of an alien control panel built into the station's sealed door. No visible hands are required.
+- Keep the four code slots central, with six large mineral-like gem controls directly below them. The controls should feel integrated into an old spacecraft console rather than placed over it as generic buttons.
+- Place the submitted-guess history and its feedback indicators to the left of the active code. Preserve previous rows so the player can compare evidence across attempts.
+- Use Stella and the archive security system as expressive state cards on the right. Lighting or dimming a card may show when the player is choosing and when the system is responding, but it must not imply an additional mathematical turn or place Zyx-7 physically at the station.
+- Show the current lock phase and remaining attempts at the top. Attempts should be represented by readable pips rather than requiring a text-heavy HUD.
+- Keep feedback visual: bright green for correct colour and position, yellow for correct colour in the wrong position, and muted grey for submitted gems not matched by either category. Do not add explanatory strategy text or reveal the code's logic.
+
 ## Rules
 
 - Each code has four slots and uses six available colours.

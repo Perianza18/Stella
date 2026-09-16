@@ -10,7 +10,16 @@ Choose who starts, then extinguish the final crystal before the Krik does.
 
 ## Interaction
 
-The player first chooses whether Stella or the Krik starts. On Stella's turns, the player chooses to extinguish one, two, or three remaining crystals.
+The player first chooses whether Stella or the Krik starts. On Stella's turns, the player selects one, two, or three remaining crystals, clearly confirms/ends the turn, and then the Krik responds.
+
+## Visual and UI Direction
+
+- Stage the ritual as a close-up crystalline altar in a cold, high-technology Krik environment. All 20 crystals should be visible in a stable, easily countable arrangement.
+- Give the crystals subtle idle motion or energy effects so they feel alive without making the remaining total difficult to read.
+- Show torso portrait cards for Stella and the Krik beside the altar. Brighten the active participant and dim the inactive one; short thinking, nervous, frustrated, or confident reactions may reinforce turn changes.
+- The player clicks or taps up to three crystals, sees the current selection clearly, then uses a prominent confirm/end-turn control. Enter may act as an optional desktop shortcut, but every essential action must remain available through the pointer.
+- Lock crystal input after Stella confirms and throughout the Krik's turn. The starting-order choice appears before play and remains visible in the turn presentation.
+- A visible clock and exit control may support the approved composition, but any clock is optional and non-punitive for the MVP. It must not automatically end Stella's turn; the player has time to reason and advances play only with the confirm/end-turn control. A timed challenge mode may be considered later, but it is not part of the initial MVP.
 
 ## Rules
 

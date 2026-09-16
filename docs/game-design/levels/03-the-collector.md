@@ -12,6 +12,15 @@ Move a neutral holographic token to the origin before the Collector does.
 
 On each turn, the active player selects one of the token's two coordinates and reduces it by a positive amount.
 
+## Visual and UI Direction
+
+- Present the duel as a close-up holographic table inside The Vault, using a dark collector's interior with purple and magenta light accents.
+- The Collector should read as an imposing alien or robotic curator rather than a final boss. Stella's rock must not appear in the arena or be represented by the game token.
+- Keep the two-coordinate grid central and high contrast. The neutral holographic token and the `(0, 0)` capsule/origin need distinct silhouettes that remain legible against the projected surface.
+- Let the player click or tap a legal destination along the token's current row or column, previewing the one-coordinate reduction before confirmation. Dragging is not required.
+- Use restrained holographic motion and character reactions for atmosphere, but do not highlight the main diagonal or label positions as winning or losing.
+- Show whose turn it is and retain the current coordinate pair as neutral state information; the UI must not recommend which coordinate to reduce.
+
 ## Rules
 
 - The token occupies a position `(x, y)` on a two-coordinate grid.

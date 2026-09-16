@@ -12,6 +12,15 @@ Choose who starts, then outlast the alien by placing legal stone pieces until th
 
 Before play, the player chooses whether Stella or the alien takes the first turn. On Stella's turns, the player selects four board cells that form an L tetromino.
 
+## Visual and UI Direction
+
+- Frame the board as a close-up ceremonial stone surface inside forest-covered alien ruins, using Palenque-inspired architecture, carved reliefs, and geometric motifs as the approved visual reference.
+- The 7×7 grid must remain immediately readable above the environmental detail. Make the blocked centre look like an immovable carved stone, visually distinct from both free cells and placed pieces.
+- Present the starting-order choice before the first placement and keep the chosen order visible once play begins.
+- Use pointer selection for the four cells, with a clear L-shaped placement preview and an explicit confirm action. Invalid footprints, overlaps, and out-of-bounds cells should be rejected visually before confirmation.
+- Keep Stella's and the alien's pieces visually distinct, and make the active participant obvious without highlighting rotational pairs or otherwise revealing the mirror strategy.
+- The alien nomad and ruin scenery may frame the board, but neither should obscure cell boundaries or legal placement feedback.
+
 ## Rules
 
 - The board is a 7×7 grid with its centre square blocked.

@@ -12,6 +12,15 @@ Identify the heavier stowaway among 27 meteor eggs using no more than three scal
 
 For each scale use, the player assigns equal-sized groups of current candidates to the left and right pans, leaves any others aside, and observes whether the scale balances or one side is heavier. After the available readings, the player selects one egg.
 
+## Visual and UI Direction
+
+- Use a close-up customs-station interface with Agent Glip and blue-purple alien technology framing the task, while keeping the weighing surface dominant.
+- Place the alien balance on the left and the meteor-egg candidate grid on the right. Use enclosed alien baskets or boxes instead of open scale plates; front-facing LED counters show how many eggs each side contains without requiring every assigned egg to be drawn inside.
+- Assign eggs through clicks or taps rather than mandatory dragging. The player selects candidates for the left container, advances with a clear next/confirm control, assigns the right container, then confirms the weighing.
+- Dim eggs that have been assigned and mark their left/right group clearly. Prevent weighing until the two containers hold equal numbers, but leave unassigned eggs visibly available as the third group.
+- Show the three battery uses as persistent pips. After the third weighing—or once only one candidate remains—the balance powers down and the interface changes to a single-egg selection state.
+- Character cards may be omitted if they crowd the 27 candidates. Scale animation, LED counts, and the candidate grid take priority, and no feedback should reveal how the adversarial outcome was chosen.
+
 ## Rules
 
 - There are 27 visually identical meteor eggs.
