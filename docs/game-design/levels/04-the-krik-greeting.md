@@ -68,4 +68,4 @@ Implemented in [`prototypes/python/level_04_krik_greeting/krik_greeting.py`](../
 
 ### Unity
 
-Not started. The Unity project has not been created.
+Implemented as a functional placeholder vertical slice in `stella_unity/Assets/_Stella/Scenes/Level04_KrikGreeting.unity`. The landscape scene includes explicit starting-player choice, a single active battle card, stable two-by-ten crystal placement, reversible 1–3 crystal selection, optimal Krik turns, win/loss reactions, and immediate Retry.
