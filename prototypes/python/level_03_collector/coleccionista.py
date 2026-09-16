@@ -12,7 +12,7 @@ COLUMNA_INICIAL = 10
 def movimiento_optimo(fila: int, columna: int) -> tuple[int, int]:
     """Return the Collector's next position.
 
-    If the stone isn't on the diagonal (fila != columna), move it onto the diagonal
+    If the token isn't on the diagonal (fila != columna), move it onto the diagonal
     by reducing the larger coordinate to match the smaller one (a winning move). If
     it's already on the diagonal, the Collector is in a losing position: there is no
     winning move, so it randomly reduces one of the two coordinates instead.
@@ -28,7 +28,7 @@ def movimiento_optimo(fila: int, columna: int) -> tuple[int, int]:
 
 
 def pedir_movimiento(fila: int, columna: int) -> tuple[int, int]:
-    """Ask Stella for her move: slide the stone left or down."""
+    """Ask Stella for her move: slide the token left or down."""
     while True:
         direccion = input("Move the stone 'left' or 'down'? ").strip().lower()
         if direccion in ('left', 'l'):
@@ -59,7 +59,7 @@ def pedir_movimiento(fila: int, columna: int) -> tuple[int, int]:
 
 
 def mostrar_posicion(fila: int, columna: int) -> None:
-    """Draw the grid with Stella's capsule at (0,0) and the stone at its current spot."""
+    """Draw the grid with Stella's capsule at (0,0) and the token at its current spot."""
     tamano = max(FILA_INICIAL, COLUMNA_INICIAL)
     print('     ' + ''.join(f'{c:>3}' for c in range(tamano + 1)))
     for r in range(tamano + 1):
@@ -77,8 +77,8 @@ def mostrar_posicion(fila: int, columna: int) -> None:
 def jugar_nivel_3() -> str:
     """Play the complete Level 3. Returns 'Stella' or 'Collector' depending on who wins."""
     print("=== Level 3: The Collector ===")
-    print("The Collector keeps the Perfect Rock inside a holographic Containment Matrix.")
-    print("Both of you use tractor beams to slide the stone: only left or down.")
+    print("The Collector will share an anomaly clue if Stella wins his gravitational duel.")
+    print("Both of you use tractor beams to slide a neutral holographic token: only left or down.")
     print("Whoever lands it exactly on (0,0) wins.\n")
 
     fila, columna = FILA_INICIAL, COLUMNA_INICIAL
@@ -88,18 +88,18 @@ def jugar_nivel_3() -> str:
     while True:
         if turno_de_stella:
             fila, columna = pedir_movimiento(fila, columna)
-            print(f"\nStella slides the stone to (row={fila}, col={columna}).")
+            print(f"\nStella slides the token to (row={fila}, col={columna}).")
         else:
             fila, columna = movimiento_optimo(fila, columna)
-            print(f"\nThe Collector slides the stone to (row={fila}, col={columna}).")
+            print(f"\nThe Collector slides the token to (row={fila}, col={columna}).")
 
         mostrar_posicion(fila, columna)
 
         if fila == 0 and columna == 0:
             if turno_de_stella:
-                print("\nThe stone lands on (0,0)! The Collector releases the Containment Matrix.")
+                print("\nThe token lands on (0,0)! The Collector reveals the clue to Krik territory.")
                 return 'Stella'
-            print("\nThe Collector lands the stone on (0,0). It keeps the Perfect Rock... for now.")
+            print("\nThe Collector lands the token on (0,0) and withholds the clue for now.")
             return 'Collector'
 
         turno_de_stella = not turno_de_stella

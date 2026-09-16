@@ -1,22 +1,61 @@
-# Level 3 — The Collector (Game Theory — Nim 2D/Chomp)
+# Level 3 — The Collector
 
-## Narrative hook
-The nomad sends her to The Vault: the largest collection of rare objects in the known universe. The Collector has cataloged everything space has ever discarded — including objects recovered from anomalies. He might have Stella's rock, or at least know where it ended up. But he won't talk to anyone without first beating them in his gravitational duel.
+## Narrative Role
 
-## Level context
-In the gigantic "Vault", Stella confronts "The Collector," an arrogant cosmic being who holds her Perfect Rock inside a holographic Containment Matrix. The two of them fight over it using tractor beams in a gravitational duel.
+The nomad sends Stella to The Vault. The Collector may understand the anomaly but shares information only after Stella wins a gravitational duel. He does not possess Stella's rock; after the duel, he identifies the anomaly signature and points her toward Krik territory.
 
-## Overview
-The final boss showdown. A Combinatorial Game Theory problem (a "Tower Game") where a token is moved on a grid using advanced winning-position concepts.
+## Player-Facing Objective
+
+Move a neutral holographic token to the origin before the Collector does.
+
+## Interaction
+
+On each turn, the active player selects one of the token's two coordinates and reduces it by a positive amount.
 
 ## Rules
-- The setting is a grid (e.g. 10x10) with Stella's capsule at coordinate (0,0).
-- The stone starts at an asymmetric upper coordinate (like 7, 10).
-- On their turn, the player slides the stone any number of squares, only to the left or downward.
-- Whoever manages to land the stone exactly on (0,0) wins.
 
-## Strategy
-The heuristic is to keep to the main diagonal (where x=y). If the stone starts at (7, 10), Stella brings it down to (7, 7). When the bot pulls it off the diagonal by moving it left (e.g. 2, 7), Stella mirrors the move downward to return it to the diagonal (2, 2). This eventually forces the bot to leave it at (0, X) or (X, 0), letting Stella win on her next turn.
+- The token occupies a position `(x, y)` on a two-coordinate grid.
+- A move reduces exactly one coordinate.
+- Coordinates may never increase or go below zero.
+- Stella and the Collector alternate moves.
+- Landing exactly at `(0, 0)` ends the duel.
 
-## Why it works
-It turns abstract coordinates into a mechanical, visual confrontation. The Collector's code detects any mistake immediately and executes its relentless strategy, forcing the player to understand the geometric pattern.
+## Win Condition
+
+Stella moves the token to `(0, 0)`.
+
+## Loss Condition
+
+The Collector moves the token to `(0, 0)` first.
+
+## Developer Design
+
+### Hidden Mathematical Idea
+
+Positions on the main diagonal, where `x = y`, are losing positions for the player whose turn begins there under correct play.
+
+### Optimal Strategy
+
+From an off-diagonal position, reduce the larger coordinate until it equals the smaller coordinate. After the opponent changes one coordinate and leaves the diagonal, restore equality. This eventually forces the opponent to expose the final move to `(0, 0)`.
+
+### Bot / System Behaviour
+
+From an off-diagonal position, the Collector always returns the token to the diagonal. From a diagonal position, no forced winning move exists, so any legal coordinate reduction is acceptable.
+
+### Anti-Luck / Anti-Bruteforce Behaviour
+
+The Collector applies the diagonal strategy whenever it is available. Random moves cannot defeat correct play; the player must recognize and maintain the invariant.
+
+### What the Player Is Expected to Discover
+
+The player should discover that the two coordinates can be balanced, that equal-coordinate positions transfer the disadvantage to the next player, and that restoring equality controls the duel.
+
+## Implementation Status
+
+### Python Prototype
+
+Implemented in [`prototypes/python/level_03_collector/coleccionista.py`](../../../prototypes/python/level_03_collector/coleccionista.py). The prototype uses a neutral game token.
+
+### Unity
+
+Not started. The Unity project has not been created.

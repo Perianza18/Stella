@@ -1,22 +1,62 @@
-# Level 1 — Double Lock (Mastermind)
+# Level 1 — Double Lock
 
-## Narrative hook
-Stella traces the route her ship followed before the anomaly. The records point to an abandoned space station where an old information broker named Zyx-7 archived data on similar anomalies. If she can open the sealed archive door, she'll know where to keep searching.
+## Narrative Role
 
-## Level context
-Stella arrives at an abandoned space station looking for an alien trader who has information about the Perfect Rock. To reach him, she must open a door sealed by an alien double-lock security system (Zyx-7).
+Stella retraces her route to an abandoned station where Zyx-7 archived information about anomalies. Opening the station's sealed archive gives her the lead that sends her to the ruins planet.
 
-## Overview
-An introductory logic-deduction puzzle based on the classic game of Mastermind, where the player must decipher hidden combinations by interpreting visual feedback.
+## Player-Facing Objective
+
+Open both security locks by deducing each hidden four-colour code before its attempts run out.
+
+## Interaction
+
+The player selects one colour for each of four slots, submits the guess, and reads the positional and colour feedback returned by the lock.
 
 ## Rules
-- The player sees a control panel with 4 slots and 6 gem-colored buttons.
-- The goal is to guess a secret 4-gem code, choosing from the 6 available colors.
-- After each guess, the system responds only with visual indicators: a bright green dot means correct color and position; yellow means correct color but wrong position; gray means the color isn't in the code.
-- The player has 6 attempts per lock and must clear two consecutive phases. Failing either one means restarting from the first.
 
-## Strategy
-The goal isn't to guess, but to eliminate options systematically. The ideal first guess should use distinct colors (e.g. Red-Blue-Green-Yellow) to get the maximum amount of information. Using the responses, elimination logic is applied to isolate the correct code, guaranteeing a mathematical win in 5 attempts or fewer.
+- Each code has four slots and uses six available colours.
+- Colours may repeat.
+- Each submitted guess receives separate counts for correct colour in the correct position and correct colour in the wrong position.
+- Each lock allows six counted attempts.
+- The player must open two consecutive locks.
+- Failing either lock restarts the sequence at the first lock.
 
-## Why it works
-It's an introductory challenge that encourages systematic elimination over guesswork. To shield the game against luck, it has a built-in safeguard: if the player guesses phase 1 on their very first attempt, the system detects it as "beginner's luck" and generates a new code, forcing the user to make at least 2-3 attempts of real deduction.
+## Win Condition
+
+Open both locks in the same run.
+
+## Loss Condition
+
+Use all six attempts on either lock without entering its code.
+
+## Developer Design
+
+### Hidden Mathematical Idea
+
+This is a Mastermind-style constraint and elimination problem. Every response reduces the set of codes consistent with the observed evidence.
+
+### Optimal Strategy
+
+Begin with an information-rich guess, normally using distinct colours, then retain only combinations consistent with every exact and misplaced-colour count. Choose later guesses to distinguish among the remaining possibilities rather than guessing randomly.
+
+### Bot / System Behaviour
+
+The system generates a four-colour code, scores exact matches first, then scores misplaced colours without reusing matched code entries. It maintains separate attempt counts for each lock.
+
+### Anti-Luck / Anti-Bruteforce Behaviour
+
+If the player guesses the first lock's code on the first submission, that uncounted beginner's-luck result causes the system to replace the code. Normal play then continues, requiring evidence-based deduction rather than a one-shot lucky pass.
+
+### What the Player Is Expected to Discover
+
+The player should discover that varied guesses reveal more information, feedback must be combined across attempts, and duplicate colours must be reasoned about carefully.
+
+## Implementation Status
+
+### Python Prototype
+
+Implemented in [`prototypes/python/level_01_double_lock/mastermind.py`](../../../prototypes/python/level_01_double_lock/mastermind.py).
+
+### Unity
+
+Not started. The Unity project has not been created.
