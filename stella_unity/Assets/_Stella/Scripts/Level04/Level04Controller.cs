@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -18,10 +19,12 @@ namespace Stella.Level04
         [SerializeField] private Button krikStartsButton;
         [SerializeField] private GameObject retryPanel;
         [SerializeField] private Button retryButton;
-        [SerializeField] private float krikThinkingDelaySeconds = 0.65f;
+        [SerializeField] private float krikThinkingDelaySeconds = 1.3f;
+        [SerializeField] private float krikCrystalStaggerSeconds = 0.18f;
 
         private readonly List<CrystalView> selectedCrystals = new List<CrystalView>();
-        private readonly KrikStrategy krikStrategy = new KrikStrategy();
+        private KrikStrategy krikStrategy;
+        private System.Random crystalRandom;
         private KrikGreetingGame game;
         private bool playerInputEnabled;
 
@@ -43,6 +46,21 @@ namespace Stella.Level04
         public IReadOnlyList<CrystalView> CrystalViews
         {
             get { return crystalViews; }
+        }
+
+        internal float KrikThinkingDelaySeconds
+        {
+            get { return krikThinkingDelaySeconds; }
+        }
+
+        internal float KrikCrystalStaggerSeconds
+        {
+            get { return krikCrystalStaggerSeconds; }
+        }
+
+        private void Awake()
+        {
+            EnsureRandomSources();
         }
 
         private void Start()
@@ -178,7 +196,21 @@ namespace Stella.Level04
         {
             yield return new WaitForSeconds(krikThinkingDelaySeconds);
 
-            PerformKrikMoveImmediately();
+            EnsureRandomSources();
+            int moveSize = krikStrategy.ChooseMove(game.RemainingCrystals);
+            List<CrystalView> crystalsForMove = ChooseRandomActiveCrystals(moveSize);
+
+            for (int index = 0; index < crystalsForMove.Count; index++)
+            {
+                crystalsForMove[index].SetState(CrystalVisualState.Deactivated);
+
+                if (index < crystalsForMove.Count - 1)
+                {
+                    yield return new WaitForSeconds(krikCrystalStaggerSeconds);
+                }
+            }
+
+            CompleteKrikMove(moveSize);
         }
 
         internal void PerformKrikMoveImmediately()
@@ -188,8 +220,64 @@ namespace Stella.Level04
                 return;
             }
 
+            EnsureRandomSources();
             int moveSize = krikStrategy.ChooseMove(game.RemainingCrystals);
-            DeactivateFirstActiveCrystals(moveSize);
+            List<CrystalView> crystalsForMove = ChooseRandomActiveCrystals(moveSize);
+
+            for (int index = 0; index < crystalsForMove.Count; index++)
+            {
+                crystalsForMove[index].SetState(CrystalVisualState.Deactivated);
+            }
+
+            CompleteKrikMove(moveSize);
+        }
+
+        internal List<CrystalView> ChooseRandomActiveCrystals(int count)
+        {
+            EnsureRandomSources();
+            List<CrystalView> activeCrystals = new List<CrystalView>();
+
+            for (int index = 0; index < crystalViews.Count; index++)
+            {
+                if (crystalViews[index].State == CrystalVisualState.Active)
+                {
+                    activeCrystals.Add(crystalViews[index]);
+                }
+            }
+
+            if (count < 0 || count > activeCrystals.Count)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(count),
+                    "The Krik cannot choose more active crystals than remain.");
+            }
+
+            // A partial Fisher-Yates shuffle chooses unique locations without
+            // disturbing the scene list or the stable two-by-ten layout.
+            for (int index = 0; index < count; index++)
+            {
+                int randomIndex = crystalRandom.Next(index, activeCrystals.Count);
+                CrystalView temporary = activeCrystals[index];
+                activeCrystals[index] = activeCrystals[randomIndex];
+                activeCrystals[randomIndex] = temporary;
+            }
+
+            return activeCrystals.GetRange(0, count);
+        }
+
+        internal IEnumerator CreateKrikTurnSequenceForTests()
+        {
+            return PerformKrikTurn();
+        }
+
+        internal void SetRandomSourcesForTests(System.Random strategyRandom, System.Random physicalRandom)
+        {
+            krikStrategy = new KrikStrategy(strategyRandom);
+            crystalRandom = physicalRandom ?? throw new ArgumentNullException(nameof(physicalRandom));
+        }
+
+        private void CompleteKrikMove(int moveSize)
+        {
             game.ApplyMove(moveSize);
 
             if (game.IsGameOver)
@@ -199,22 +287,6 @@ namespace Stella.Level04
             }
 
             BeginStellaTurn();
-        }
-
-        private void DeactivateFirstActiveCrystals(int count)
-        {
-            int deactivatedCount = 0;
-
-            for (int index = 0; index < crystalViews.Count && deactivatedCount < count; index++)
-            {
-                if (crystalViews[index].State != CrystalVisualState.Active)
-                {
-                    continue;
-                }
-
-                crystalViews[index].SetState(CrystalVisualState.Deactivated);
-                deactivatedCount++;
-            }
         }
 
         private void BeginStellaTurn()
@@ -288,6 +360,20 @@ namespace Stella.Level04
             for (int index = 0; index < crystalViews.Count; index++)
             {
                 crystalViews[index].SetPressedCallback(HandleCrystalPressed);
+            }
+        }
+
+        private void EnsureRandomSources()
+        {
+            if (krikStrategy == null)
+            {
+                krikStrategy = new KrikStrategy();
+            }
+
+            if (crystalRandom == null)
+            {
+                int seed = unchecked(Environment.TickCount * 397) ^ GetInstanceID();
+                crystalRandom = new System.Random(seed);
             }
         }
 

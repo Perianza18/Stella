@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
@@ -43,7 +45,7 @@ namespace Stella.Level04.Tests
         {
             for (int index = createdObjects.Count - 1; index >= 0; index--)
             {
-                Object.DestroyImmediate(createdObjects[index]);
+                UnityEngine.Object.DestroyImmediate(createdObjects[index]);
             }
 
             createdObjects.Clear();
@@ -129,12 +131,73 @@ namespace Stella.Level04.Tests
         }
 
         [Test]
+        public void KrikPhysicalChoiceUsesUniqueActiveCrystalsOnly()
+        {
+            crystals[0].SetState(CrystalVisualState.Deactivated);
+            crystals[5].SetState(CrystalVisualState.Deactivated);
+            crystals[11].SetState(CrystalVisualState.Deactivated);
+            controller.SetRandomSourcesForTests(
+                new FixedRandom(1),
+                new FixedRandom(int.MaxValue));
+
+            List<CrystalView> chosenCrystals = controller.ChooseRandomActiveCrystals(3);
+
+            Assert.That(chosenCrystals.Count, Is.EqualTo(3));
+            Assert.That(new HashSet<CrystalView>(chosenCrystals).Count, Is.EqualTo(3));
+            for (int index = 0; index < chosenCrystals.Count; index++)
+            {
+                Assert.That(chosenCrystals[index].State, Is.EqualTo(CrystalVisualState.Active));
+                Assert.That(chosenCrystals[index], Is.Not.EqualTo(crystals[0]));
+                Assert.That(chosenCrystals[index], Is.Not.EqualTo(crystals[5]));
+                Assert.That(chosenCrystals[index], Is.Not.EqualTo(crystals[11]));
+            }
+
+            CollectionAssert.AreNotEqual(
+                new[] { crystals[1], crystals[2], crystals[3] },
+                chosenCrystals,
+                "A Krik move should not always consume the first active crystals in scene order.");
+        }
+
+        [Test]
+        public void PlayerInputStaysLockedThroughThinkingAndCrystalStagger()
+        {
+            controller.SetRandomSourcesForTests(
+                new FixedRandom(3),
+                new FixedRandom(int.MaxValue));
+            controller.ChooseKrikStarts();
+            IEnumerator krikTurn = controller.CreateKrikTurnSequenceForTests();
+
+            Assert.That(controller.PlayerInputEnabled, Is.False);
+            Assert.That(controller.KrikThinkingDelaySeconds, Is.InRange(1.2f, 1.4f));
+            Assert.That(controller.KrikCrystalStaggerSeconds, Is.InRange(0.15f, 0.20f));
+
+            Assert.That(krikTurn.MoveNext(), Is.True, "The first yield is the thinking pause.");
+            Assert.That(controller.PlayerInputEnabled, Is.False);
+            Assert.That(CountCrystalsInState(CrystalVisualState.Deactivated), Is.Zero);
+
+            Assert.That(krikTurn.MoveNext(), Is.True, "The first crystal is followed by a stagger.");
+            Assert.That(controller.PlayerInputEnabled, Is.False);
+            Assert.That(CountCrystalsInState(CrystalVisualState.Deactivated), Is.EqualTo(1));
+
+            Assert.That(krikTurn.MoveNext(), Is.True, "The second crystal is followed by a stagger.");
+            Assert.That(controller.PlayerInputEnabled, Is.False);
+            Assert.That(CountCrystalsInState(CrystalVisualState.Deactivated), Is.EqualTo(2));
+
+            Assert.That(krikTurn.MoveNext(), Is.False, "The turn finishes after the third crystal.");
+            Assert.That(CountCrystalsInState(CrystalVisualState.Deactivated), Is.EqualTo(3));
+            Assert.That(controller.Game.RemainingCrystals, Is.EqualTo(17));
+            Assert.That(controller.Game.CurrentParticipant, Is.EqualTo(Participant.Stella));
+            Assert.That(controller.PlayerInputEnabled, Is.True);
+        }
+
+        [Test]
         public void StellaCanWinWhenKrikStartsAndRetryRestoresRound()
         {
             controller.ChooseKrikStarts();
 
             while (!controller.Game.IsGameOver)
             {
+                int remainingBeforeKrikMove = controller.Game.RemainingCrystals;
                 controller.PerformKrikMoveImmediately();
 
                 if (controller.Game.IsGameOver)
@@ -142,7 +205,8 @@ namespace Stella.Level04.Tests
                     break;
                 }
 
-                SelectActiveCrystals(3);
+                int krikMove = remainingBeforeKrikMove - controller.Game.RemainingCrystals;
+                SelectActiveCrystals(4 - krikMove);
                 controller.ConfirmStellaMove();
             }
 
@@ -278,6 +342,21 @@ namespace Stella.Level04.Tests
             GameObject gameObject = new GameObject(name, typeof(RectTransform));
             createdObjects.Add(gameObject);
             return gameObject;
+        }
+
+        private sealed class FixedRandom : System.Random
+        {
+            private readonly int fixedValue;
+
+            public FixedRandom(int fixedValue)
+            {
+                this.fixedValue = fixedValue;
+            }
+
+            public override int Next(int minValue, int maxValue)
+            {
+                return Math.Min(Math.Max(fixedValue, minValue), maxValue - 1);
+            }
         }
     }
 }
