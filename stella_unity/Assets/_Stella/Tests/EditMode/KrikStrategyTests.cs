@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 
 namespace Stella.Level04.Tests
@@ -10,7 +11,7 @@ namespace Stella.Level04.Tests
         [SetUp]
         public void SetUp()
         {
-            strategy = new KrikStrategy();
+            strategy = new KrikStrategy(new Random(12345));
         }
 
         [Test]
@@ -33,9 +34,30 @@ namespace Stella.Level04.Tests
         [TestCase(20)]
         [TestCase(16)]
         [TestCase(12)]
-        public void LosingPositionsUseDeterministicOneCrystalFallback(int remaining)
+        [TestCase(8)]
+        [TestCase(4)]
+        public void LosingPositionChoicesAreAlwaysLegal(int remaining)
         {
-            Assert.That(strategy.ChooseMove(remaining), Is.EqualTo(1));
+            for (int attempt = 0; attempt < 30; attempt++)
+            {
+                int move = strategy.ChooseMove(remaining);
+
+                Assert.That(move, Is.InRange(1, Math.Min(3, remaining)));
+            }
+        }
+
+        [Test]
+        public void SeededLosingPositionChoicesShowVariationWithoutFlakiness()
+        {
+            KrikStrategy seededStrategy = new KrikStrategy(new Random(90210));
+            HashSet<int> observedMoves = new HashSet<int>();
+
+            for (int attempt = 0; attempt < 30; attempt++)
+            {
+                observedMoves.Add(seededStrategy.ChooseMove(20));
+            }
+
+            Assert.That(observedMoves, Is.EquivalentTo(new[] { 1, 2, 3 }));
         }
 
         [Test]
@@ -48,6 +70,14 @@ namespace Stella.Level04.Tests
                 Assert.That(move, Is.InRange(1, 3));
                 Assert.That(move, Is.LessThanOrEqualTo(remaining));
             }
+        }
+
+        [TestCase(1, 1)]
+        [TestCase(2, 2)]
+        [TestCase(3, 3)]
+        public void SmallFinalCountsRemainLegalAndOptimal(int remaining, int expectedMove)
+        {
+            Assert.That(strategy.ChooseMove(remaining), Is.EqualTo(expectedMove));
         }
 
         [TestCase(1, 3)]
