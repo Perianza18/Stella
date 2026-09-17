@@ -39,5 +39,31 @@ namespace Stella.Level04.Tests
             Assert.That(bottom.anchorMin.y, Is.EqualTo(0.04f).Within(0.001f));
             Assert.That(bottom.anchorMax.y, Is.EqualTo(0.65f).Within(0.001f));
         }
+
+        [Test]
+        public void SceneHasActiveOrthographicMainCameraWithoutChangingOverlayCanvas()
+        {
+            EditorSceneManager.OpenScene(ScenePath);
+
+            Camera mainCamera = Camera.main;
+            Canvas canvas = Object.FindObjectOfType<Canvas>();
+
+            Assert.That(mainCamera, Is.Not.Null);
+            Assert.That(mainCamera.enabled, Is.True);
+            Assert.That(mainCamera.orthographic, Is.True);
+            Assert.That(mainCamera.targetDisplay, Is.Zero);
+            Assert.That(canvas.renderMode, Is.EqualTo(RenderMode.ScreenSpaceOverlay));
+        }
+
+        [Test]
+        public void SceneStoresApprovedKrikTurnTiming()
+        {
+            EditorSceneManager.OpenScene(ScenePath);
+
+            Level04Controller controller = Object.FindObjectOfType<Level04Controller>();
+
+            Assert.That(controller.KrikThinkingDelaySeconds, Is.InRange(1.2f, 1.4f));
+            Assert.That(controller.KrikCrystalStaggerSeconds, Is.InRange(0.15f, 0.20f));
+        }
     }
 }

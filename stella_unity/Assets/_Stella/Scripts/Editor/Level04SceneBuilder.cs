@@ -24,6 +24,8 @@ namespace Stella.EditorTools
         private static readonly Color DialogueBackground = new Color(0.095f, 0.17f, 0.25f, 1f);
         private static readonly Color PrimaryButton = new Color(0.13f, 0.64f, 0.73f, 1f);
         private static readonly Color LightText = new Color(0.91f, 0.97f, 1f, 1f);
+        private const float KrikThinkingDelaySeconds = 1.3f;
+        private const float KrikCrystalStaggerSeconds = 0.18f;
 
         static Level04SceneBuilder()
         {
@@ -42,6 +44,7 @@ namespace Stella.EditorTools
             GameObject sceneRoot = new GameObject("Level04_KrikGreeting");
             Level04Controller controller = sceneRoot.AddComponent<Level04Controller>();
 
+            CreateMainCamera(sceneRoot.transform);
             CreateEventSystem(sceneRoot.transform);
             Canvas canvas = CreateCanvas(sceneRoot.transform);
             CreateBackground(canvas.transform);
@@ -95,6 +98,50 @@ namespace Stella.EditorTools
             BuildScene();
         }
 
+        [MenuItem("Stella/Apply Level 4 Krik Turn Polish")]
+        public static void ApplyKrikTurnPolish()
+        {
+            Scene scene = EditorSceneManager.OpenScene(SceneAssetPath, OpenSceneMode.Single);
+            GameObject sceneRoot = GameObject.Find("Level04_KrikGreeting");
+
+            if (sceneRoot == null)
+            {
+                throw new InvalidDataException("The Level 4 scene root could not be found.");
+            }
+
+            Transform existingCamera = sceneRoot.transform.Find("Main Camera");
+            if (existingCamera == null)
+            {
+                CreateMainCamera(sceneRoot.transform);
+            }
+            else
+            {
+                ConfigureMainCamera(existingCamera.gameObject);
+            }
+
+            Level04Controller controller = Object.FindObjectOfType<Level04Controller>();
+            if (controller == null)
+            {
+                throw new InvalidDataException("The Level 4 controller could not be found.");
+            }
+
+            SerializedObject serializedController = new SerializedObject(controller);
+            serializedController.FindProperty("krikThinkingDelaySeconds").floatValue = KrikThinkingDelaySeconds;
+            serializedController.FindProperty("krikCrystalStaggerSeconds").floatValue = KrikCrystalStaggerSeconds;
+            serializedController.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(controller);
+
+            EditorSceneManager.MarkSceneDirty(scene);
+            EditorSceneManager.SaveScene(scene, SceneAssetPath);
+            AssetDatabase.SaveAssets();
+            Debug.Log("Applied Level 4 Krik turn polish without rebuilding the approved UI layout.");
+        }
+
+        public static void ApplyKrikTurnPolishFromCommandLine()
+        {
+            ApplyKrikTurnPolish();
+        }
+
         private static void BuildSceneIfMissing()
         {
             if (AssetDatabase.LoadAssetAtPath<SceneAsset>(SceneAssetPath) == null)
@@ -123,6 +170,35 @@ namespace Stella.EditorTools
             scaler.matchWidthOrHeight = 0.5f;
 
             return canvas;
+        }
+
+        private static Camera CreateMainCamera(Transform parent)
+        {
+            GameObject cameraObject = new GameObject("Main Camera", typeof(Camera), typeof(AudioListener));
+            cameraObject.transform.SetParent(parent, false);
+            ConfigureMainCamera(cameraObject);
+            return cameraObject.GetComponent<Camera>();
+        }
+
+        private static void ConfigureMainCamera(GameObject cameraObject)
+        {
+            cameraObject.tag = "MainCamera";
+            cameraObject.transform.localPosition = new Vector3(0f, 0f, -10f);
+            cameraObject.transform.localRotation = Quaternion.identity;
+
+            Camera camera = cameraObject.GetComponent<Camera>();
+            if (camera == null)
+            {
+                camera = cameraObject.AddComponent<Camera>();
+            }
+
+            camera.enabled = true;
+            camera.orthographic = true;
+            camera.orthographicSize = 5f;
+            camera.clearFlags = CameraClearFlags.SolidColor;
+            camera.backgroundColor = PageBackground;
+            camera.depth = -1f;
+            camera.targetDisplay = 0;
         }
 
         private static void CreateEventSystem(Transform parent)
