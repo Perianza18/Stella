@@ -69,4 +69,6 @@ Implemented in [`prototypes/python/level_05_200_gems/gemas.py`](../../../prototy
 
 ### Unity
 
-Not started. The Unity project has not been created.
+Planned. `Level05_200Gems.unity` will hold one `GemsGame` class with no Unity dependencies (the same dynamic losing-position calculation and optimal Guardian move as `gemas.py`), paired with a single `Level05Controller` MonoBehaviour.
+
+The amount to take is chosen with a stepper or slider plus a confirm button, not free numeric text entry, and the move history is a simple scrolling text log rather than dedicated history-row prefabs. `GemsGame` should get EditMode coverage for the losing-position table and Guardian move selection, mirroring the Level 4 pattern.

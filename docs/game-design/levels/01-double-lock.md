@@ -68,4 +68,6 @@ Implemented in [`prototypes/python/level_01_double_lock/mastermind.py`](../../..
 
 ### Unity
 
-Not started. The Unity project has not been created.
+Planned. `Level01_DoubleLock.unity` will hold one `DoubleLockGame` class with no Unity dependencies (code generation, exact/misplaced scoring, phase and attempt tracking, and the beginner's-luck code replacement), paired with a single `Level01Controller` MonoBehaviour that wires six colour buttons, four slot indicators, and a feedback-pip row built from plain UI `Image` components.
+
+Unlike Level 4, this slice needs no custom view or grid-layout scripts: the panel is a fixed, hand-built layout, not a procedurally arranged one. `DoubleLockGame` should get the same kind of EditMode coverage as `KrikGreetingGame`.

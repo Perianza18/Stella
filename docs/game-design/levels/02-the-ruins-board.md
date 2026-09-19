@@ -69,4 +69,6 @@ Implemented in [`prototypes/python/level_02_ruins_board/tablero_ruinas.py`](../.
 
 ### Unity
 
-Not started. The Unity project has not been created.
+Planned. `Level02_RuinsBoard.unity` will hold one `RuinsBoardGame` class with no Unity dependencies (grid state, L-tetromino orientation and placement validation, turn order, and the alien's mirror-strategy response), paired with a single `Level02Controller` MonoBehaviour.
+
+The 7×7 board is a built-in `GridLayoutGroup` of plain `Button` cells rather than a custom grid script. The player taps up to four cells, confirms, and the controller validates the shape against the same orientation set used by `tablero_ruinas.py`. The starting-order choice is two buttons shown before the first placement. `RuinsBoardGame` should get EditMode coverage for shape validation and the mirror response, mirroring the Level 4 pattern.
