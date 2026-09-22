@@ -1,6 +1,6 @@
 # Stella
 
-Stella is a 2D pixel-art mathematical adventure about an astronaut otter searching the universe for her missing favorite rock. Each of its six puzzle levels uses logical reasoning as a shared language between Stella and an alien civilization.
+Stella is a 2D pixel-art mathematical adventure about an astronaut otter searching the universe for her missing favorite rock. Each of its six puzzle levels uses logical reasoning as a shared language between Stella and an alien civilization..
 
 > Mathematical logic is the Universal Language.
 
