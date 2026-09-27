@@ -1,44 +1,45 @@
-"""
-Stella
-Level 2 - The Ruins Board
-"""
+"""Stella Level 2: bitboard rules plus Discovery -> Proof progression."""
 from __future__ import annotations
+
+from dataclasses import dataclass
+from enum import Enum
+from functools import lru_cache
 import random
+from typing import Iterable
 
 TAMANO = 7
-CENTRO = (TAMANO // 2, TAMANO // 2)
-LIBRE = '.'
-BLOQUEADO = '#'
-
-# Base shape of the "L" tetromino: (row, column) relative coordinates.
+CENTRO = (3, 3)
+LIBRE, BLOQUEADO, OCUPADO, STELLA, KEEPER = ".", "#", "O", "S", "K"
 FORMA_BASE = [(0, 0), (1, 0), (2, 0), (2, 1)]
-
 Celda = tuple[int, int]
 Orientacion = tuple[Celda, ...]
 
 
-def normalizar(celdas: list[Celda]) -> Orientacion:
-    """Shift the given cells so the top-left corner lands on (0, 0)."""
-    min_r = min(r for r, _ in celdas)
-    min_c = min(c for _, c in celdas)
-    return tuple(sorted((r - min_r, c - min_c) for r, c in celdas))
+class LevelPhase(Enum):
+    DISCOVERY = "Discovery"
+    PROOF = "Proof"
+    COMPLETED = "Completed"
 
 
-def rotar(celdas: list[Celda]) -> list[Celda]:
-    """Rotate the given cells 90 degrees."""
+def normalizar(celdas: Iterable[Celda]) -> Orientacion:
+    values = list(celdas)
+    min_r = min(r for r, _ in values)
+    min_c = min(c for _, c in values)
+    return tuple(sorted((r - min_r, c - min_c) for r, c in values))
+
+
+def rotar(celdas: Iterable[Celda]) -> list[Celda]:
     return [(c, -r) for r, c in celdas]
 
 
-def reflejar(celdas: list[Celda]) -> list[Celda]:
-    """Reflect the given cells (horizontal mirror)."""
+def reflejar(celdas: Iterable[Celda]) -> list[Celda]:
     return [(r, -c) for r, c in celdas]
 
 
 def generar_orientaciones() -> list[Orientacion]:
-    """Generate the 8 distinct orientations of the L tetromino (4 rotations x 2 reflections)."""
     formas: set[Orientacion] = set()
     for base in (FORMA_BASE, reflejar(FORMA_BASE)):
-        actual = base
+        actual = list(base)
         for _ in range(4):
             formas.add(normalizar(actual))
             actual = rotar(actual)
@@ -49,178 +50,327 @@ ORIENTACIONES = generar_orientaciones()
 ORIENTACIONES_VALIDAS = set(ORIENTACIONES)
 
 
-def dibujar_forma(orientacion: Orientacion) -> str:
-    """Return a small ASCII drawing of one orientation, to make it easier to pick."""
-    max_r = max(r for r, _ in orientacion)
-    max_c = max(c for _, c in orientacion)
-    celdas = set(orientacion)
-    filas = [''.join('■' if (r, c) in celdas else '.' for c in range(max_c + 1))
-             for r in range(max_r + 1)]
-    return '\n       '.join(filas)
-
-
-def tablero_nuevo() -> list[list[str]]:
-    """Create the 7x7 board with the center square blocked."""
-    tablero = [[LIBRE] * TAMANO for _ in range(TAMANO)]
-    tablero[CENTRO[0]][CENTRO[1]] = BLOQUEADO
-    return tablero
-
-
-def mostrar_tablero(tablero: list[list[str]]) -> None:
-    print('   ' + ' '.join(str(c) for c in range(TAMANO)))
-    for r, fila in enumerate(tablero):
-        print(f'{r}: ' + ' '.join(fila))
-
-
-def celdas_de_movimiento(orientacion: Orientacion, ancla: Celda) -> list[Celda]:
+def celdas_de_movimiento(orientacion: Orientacion, ancla: Celda) -> tuple[Celda, ...]:
     fr, fc = ancla
-    return [(fr + dr, fc + dc) for dr, dc in orientacion]
+    return tuple((fr + dr, fc + dc) for dr, dc in orientacion)
 
 
-def movimiento_valido(tablero: list[list[str]], orientacion: Orientacion, ancla: Celda) -> bool:
-    for r, c in celdas_de_movimiento(orientacion, ancla):
-        if not (0 <= r < TAMANO and 0 <= c < TAMANO):
-            return False
-        if tablero[r][c] != LIBRE:
+def _bit(celda: Celda) -> int:
+    return 1 << (celda[0] * TAMANO + celda[1])
+
+
+CENTRE_MASK = _bit(CENTRO)
+
+
+def cells_to_mask(celdas: Iterable[Celda]) -> int:
+    result = 0
+    for celda in celdas:
+        result |= _bit(celda)
+    return result
+
+
+def mask_to_cells(mask: int) -> tuple[Celda, ...]:
+    return tuple((index // TAMANO, index % TAMANO) for index in range(49) if mask & (1 << index))
+
+
+def _generate_placements() -> tuple[int, ...]:
+    placements: set[int] = set()
+    for orientation in ORIENTACIONES:
+        height = max(row for row, _ in orientation) + 1
+        width = max(column for _, column in orientation) + 1
+        for row in range(TAMANO - height + 1):
+            for column in range(TAMANO - width + 1):
+                placement = cells_to_mask(celdas_de_movimiento(orientation, (row, column)))
+                if not placement & CENTRE_MASK:
+                    placements.add(placement)
+    return tuple(sorted(placements))
+
+
+PLACEMENT_MASKS = _generate_placements()
+PLACEMENT_CELLS = {mask: mask_to_cells(mask) for mask in PLACEMENT_MASKS}
+
+
+def _transform_cell(cell: Celda, transform: int) -> Celda:
+    row, column = cell
+    last = TAMANO - 1
+    return (
+        (row, column), (column, last - row), (last - row, last - column),
+        (last - column, row), (row, last - column), (last - row, column),
+        (column, row), (last - column, last - row),
+    )[transform]
+
+
+TRANSFORMED_BITS = tuple(
+    tuple(_bit(_transform_cell((index // TAMANO, index % TAMANO), transform)) for index in range(49))
+    for transform in range(8)
+)
+
+
+def transform_mask(mask: int, transform: int) -> int:
+    result = 0
+    while mask:
+        lowest = mask & -mask
+        index = lowest.bit_length() - 1
+        result |= TRANSFORMED_BITS[transform][index]
+        mask ^= lowest
+    return result
+
+
+def canonical_mask(mask: int) -> int:
+    return min(transform_mask(mask, transform) for transform in range(8))
+
+
+def _canonical_with_transform(mask: int) -> tuple[int, int]:
+    variants = [(transform_mask(mask, transform), transform) for transform in range(8)]
+    return min(variants)
+
+
+def mirror_cells(cells: Iterable[Celda]) -> tuple[Celda, ...]:
+    return tuple((6 - row, 6 - column) for row, column in cells)
+
+
+def is_rotationally_balanced(mask: int) -> bool:
+    return transform_mask(mask, 2) == mask
+
+
+@dataclass(frozen=True)
+class SolveResult:
+    is_winning: bool
+    distance: int | None
+    winning_moves: tuple[int, ...]
+
+
+class ExactPositionSolver:
+    """Exact memoized bitboard solver with dihedral canonicalization.
+
+    Rotationally balanced states use the fixed-point-free 180-degree pairing
+    theorem. Their exact outcome is known without expanding the huge early tree;
+    distance remains None rather than being fabricated.
+    """
+
+    def __init__(self) -> None:
+        self.nodes = 0
+
+    def solve(self, occupied_mask: int) -> SolveResult:
+        occupied_mask |= CENTRE_MASK
+        canonical, transform = _canonical_with_transform(occupied_mask)
+        result = self._solve(canonical)
+        if not result.winning_moves:
+            return result
+        inverse = (0, 3, 2, 1, 4, 5, 6, 7)[transform]
+        restored = tuple(transform_mask(move, inverse) for move in result.winning_moves)
+        return SolveResult(result.is_winning, result.distance, restored)
+
+    @lru_cache(maxsize=None)
+    def _solve(self, occupied_mask: int) -> SolveResult:
+        self.nodes += 1
+        if is_rotationally_balanced(occupied_mask):
+            return SolveResult(False, None, ())
+        legal = tuple(move for move in PLACEMENT_MASKS if not move & occupied_mask)
+        if not legal:
+            return SolveResult(False, 0, ())
+
+        symmetry_restoring = tuple(
+            move for move in legal if is_rotationally_balanced(occupied_mask | move)
+        )
+        if symmetry_restoring:
+            return SolveResult(True, None, symmetry_restoring)
+
+        losing_children: list[tuple[int, SolveResult]] = []
+        winning_children: list[SolveResult] = []
+        for move in legal:
+            child = self._solve(canonical_mask(occupied_mask | move))
+            if child.is_winning:
+                winning_children.append(child)
+            else:
+                losing_children.append((move, child))
+        if losing_children:
+            distances = [child.distance for _, child in losing_children if child.distance is not None]
+            return SolveResult(
+                True,
+                1 + min(distances) if distances else None,
+                tuple(move for move, _ in losing_children),
+            )
+        distances = [child.distance for child in winning_children if child.distance is not None]
+        distance = 1 + max(distances) if len(distances) == len(winning_children) else None
+        return SolveResult(False, distance, ())
+
+    @property
+    def cache_size(self) -> int:
+        return self._solve.cache_info().currsize
+
+
+def tablero_nuevo(preset: Iterable[Celda] = ()) -> list[list[str]]:
+    board = [[LIBRE] * TAMANO for _ in range(TAMANO)]
+    board[CENTRO[0]][CENTRO[1]] = BLOQUEADO
+    for row, column in preset:
+        if (row, column) == CENTRO or not (0 <= row < TAMANO and 0 <= column < TAMANO):
+            raise ValueError("Invalid preset stone.")
+        board[row][column] = OCUPADO
+    return board
+
+
+def board_occupancy_mask(board: list[list[str]]) -> int:
+    return cells_to_mask(
+        (row, column)
+        for row in range(TAMANO)
+        for column in range(TAMANO)
+        if board[row][column] != LIBRE
+    )
+
+
+def movimiento_valido(board: list[list[str]], orientation: Orientacion, anchor: Celda) -> bool:
+    for row, column in celdas_de_movimiento(orientation, anchor):
+        if not (0 <= row < TAMANO and 0 <= column < TAMANO) or board[row][column] != LIBRE:
             return False
     return True
 
 
-def colocar(tablero: list[list[str]], orientacion: Orientacion, ancla: Celda, simbolo: str) -> None:
-    for r, c in celdas_de_movimiento(orientacion, ancla):
-        tablero[r][c] = simbolo
+def colocar(board: list[list[str]], orientation: Orientacion, anchor: Celda, symbol: str) -> None:
+    for row, column in celdas_de_movimiento(orientation, anchor):
+        board[row][column] = symbol
 
 
-def movimientos_disponibles(tablero: list[list[str]]) -> list[tuple[Orientacion, Celda]]:
-    disponibles = []
-    for orientacion in ORIENTACIONES:
-        for fr in range(TAMANO):
-            for fc in range(TAMANO):
-                if movimiento_valido(tablero, orientacion, (fr, fc)):
-                    disponibles.append((orientacion, (fr, fc)))
-    return disponibles
+def movimientos_disponibles(board: list[list[str]]) -> list[tuple[Orientacion, Celda]]:
+    return [
+        (orientation, (row, column))
+        for orientation in ORIENTACIONES
+        for row in range(TAMANO)
+        for column in range(TAMANO)
+        if movimiento_valido(board, orientation, (row, column))
+    ]
 
 
-def reflejar_movimiento(orientacion: Orientacion, ancla: Celda) -> tuple[Orientacion, Celda]:
-    """Reflect a move 180 degrees about the center of the board (Mirror Strategy)."""
-    reflejadas = [(2 * CENTRO[0] - r, 2 * CENTRO[1] - c)
-                  for r, c in celdas_de_movimiento(orientacion, ancla)]
-    min_r = min(r for r, _ in reflejadas)
-    min_c = min(c for _, c in reflejadas)
-    orientacion_reflejada = normalizar(reflejadas)
-    return orientacion_reflejada, (min_r, min_c)
+def reflejar_movimiento(orientation: Orientacion, anchor: Celda) -> tuple[Orientacion, Celda]:
+    mirrored = mirror_cells(celdas_de_movimiento(orientation, anchor))
+    return normalizar(mirrored), (min(r for r, _ in mirrored), min(c for _, c in mirrored))
 
 
-def turno_alien(tablero: list[list[str]], ultimo_movimiento_stella: tuple[Orientacion, Celda] | None,
-                 alien_es_segundo: bool) -> tuple[Orientacion, Celda] | None:
-    """Play the alien's turn. Returns the move made, or None if it can't place any piece.
+def _move_from_mask(mask: int) -> tuple[Orientacion, Celda]:
+    cells = PLACEMENT_CELLS[mask]
+    anchor = (min(r for r, _ in cells), min(c for _, c in cells))
+    return normalizar(cells), anchor
 
-    If the alien ended up as the second player (because Stella went first), it applies
-    the Mirror Strategy to Stella's last move. If the alien moves first, it has no
-    possible winning strategy, so it places a random valid piece.
-    """
-    if alien_es_segundo and ultimo_movimiento_stella is not None:
-        orientacion, ancla = reflejar_movimiento(*ultimo_movimiento_stella)
-        if movimiento_valido(tablero, orientacion, ancla):
-            colocar(tablero, orientacion, ancla, 'A')
-            return orientacion, ancla
 
-    disponibles = movimientos_disponibles(tablero)
-    if not disponibles:
+def choose_keeper_move(
+    board: list[list[str]],
+    solver: ExactPositionSolver,
+    previous_stella_move: tuple[Orientacion, Celda] | None = None,
+    rng: random.Random | None = None,
+    exact_free_cell_limit: int = 28,
+) -> tuple[Orientacion, Celda] | None:
+    occupied = board_occupancy_mask(board)
+    legal = [move for move in PLACEMENT_MASKS if not move & occupied]
+    if not legal:
         return None
-    orientacion, ancla = random.choice(disponibles)
-    colocar(tablero, orientacion, ancla, 'A')
-    return orientacion, ancla
+    mirror_mask = 0
+    if previous_stella_move:
+        mirror_mask = cells_to_mask(mirror_cells(celdas_de_movimiento(*previous_stella_move)))
+
+    winning = [move for move in legal if is_rotationally_balanced(occupied | move)]
+    free_cells = 49 - occupied.bit_count()
+    if not winning and free_cells <= exact_free_cell_limit:
+        winning = [move for move in legal if not solver.solve(occupied | move).is_winning]
+
+    candidates = winning or legal
+    if winning:
+        non_mirror = [move for move in candidates if move != mirror_mask]
+        if non_mirror:
+            candidates = non_mirror
+    else:
+        # In a rotationally balanced losing state, assume perfect opposition will
+        # restore the pairing and choose the opening that leaves the longest
+        # remaining contest. Else restrict immediate opponent mobility.
+        if is_rotationally_balanced(occupied):
+            resistance = {}
+            for move in candidates:
+                mirrored = transform_mask(move, 2)
+                after_pair = occupied | move | mirrored
+                resistance[move] = sum(1 for reply in PLACEMENT_MASKS if not reply & after_pair)
+            best = max(resistance.values())
+            candidates = [move for move in candidates if resistance[move] == best]
+        else:
+            mobility = {move: sum(1 for reply in PLACEMENT_MASKS if not reply & (occupied | move)) for move in candidates}
+            best = min(mobility.values())
+            candidates = [move for move in candidates if mobility[move] == best]
+
+    chooser = rng or random.Random(0)
+    return _move_from_mask(candidates[chooser.randrange(len(candidates))])
 
 
-def mostrar_ejemplo_pieza() -> None:
-    """Show once, at the start of the level, what an L piece looks like."""
-    print("Each piece occupies 4 connected squares in an L shape (it can be rotated and reflected). Example:")
-    for fila in dibujar_forma(ORIENTACIONES[0]).split('\n       '):
-        print(f"   {fila}")
-    print("To play, just tell me the 4 squares (row,col) you want to occupy on the board.\n")
+PROOF_PRESETS: tuple[tuple[Celda, ...], ...] = (
+    ((0, 0), (0, 1), (0, 2), (1, 6), (2, 3), (2, 4), (3, 0), (3, 2), (3, 4), (3, 6), (4, 2), (4, 3), (5, 0), (6, 4), (6, 5), (6, 6)),
+    ((0, 0), (0, 6), (1, 0), (1, 6), (2, 2), (2, 3), (2, 5), (3, 2), (3, 4), (4, 1), (4, 3), (4, 4), (5, 0), (5, 6), (6, 0), (6, 6)),
+    ((0, 2), (0, 3), (0, 4), (0, 6), (1, 1), (1, 3), (1, 5), (2, 5), (4, 1), (5, 1), (5, 3), (5, 5), (6, 0), (6, 2), (6, 3), (6, 4)),
+)
+
+
+def mostrar_tablero(board: list[list[str]]) -> None:
+    print("   " + " ".join(str(c) for c in range(TAMANO)))
+    for row, values in enumerate(board):
+        print(f"{row}: " + " ".join(values))
 
 
 def elegir_celdas() -> list[Celda]:
-    """Ask for the 4 squares (row,col) the player wants to occupy."""
     while True:
-        entrada = input("Squares to occupy, e.g. '2,5 3,5 4,5 4,6': ").strip()
         try:
-            celdas = []
-            for par in entrada.split():
-                fr_txt, fc_txt = par.split(',')
-                celdas.append((int(fr_txt), int(fc_txt)))
-            if len(celdas) != 4 or len(set(celdas)) != 4:
-                print("You must give exactly 4 distinct squares.")
-                continue
-            return celdas
+            cells = [tuple(map(int, pair.split(","))) for pair in input("Four row,column squares: ").split()]
+            if len(cells) == 4 and len(set(cells)) == 4:
+                return cells
         except ValueError:
-            print("Invalid format. Use 'row,col' for each square, separated by spaces (e.g. '2,5 3,5 4,5 4,6').")
+            pass
+        print("Enter exactly four distinct squares.")
 
 
-def turno_stella(tablero: list[list[str]]) -> tuple[Orientacion, Celda] | None:
-    """Ask Stella for her move. Returns the move made, or None if she can't place any piece."""
-    if not movimientos_disponibles(tablero):
+def turno_stella(board: list[list[str]]) -> tuple[Orientacion, Celda] | None:
+    if not movimientos_disponibles(board):
         return None
-
     while True:
-        celdas = elegir_celdas()
-        orientacion = normalizar(celdas)
-        if orientacion not in ORIENTACIONES_VALIDAS:
-            print("Those 4 squares don't form a valid L piece (rotated or reflected). Try again.")
-            continue
-
-        min_r = min(r for r, _ in celdas)
-        min_c = min(c for _, c in celdas)
-        ancla = (min_r, min_c)
-        if not movimiento_valido(tablero, orientacion, ancla):
-            print("One of those squares is occupied, is the blocked center, or falls outside the board. Try again.")
-            continue
-
-        colocar(tablero, orientacion, ancla, 'S')
-        return orientacion, ancla
+        cells = elegir_celdas()
+        orientation = normalizar(cells)
+        anchor = (min(r for r, _ in cells), min(c for _, c in cells))
+        if orientation in ORIENTACIONES_VALIDAS and movimiento_valido(board, orientation, anchor):
+            colocar(board, orientation, anchor, STELLA)
+            return orientation, anchor
+        print("Those cells do not form a legal free L.")
 
 
-def preguntar_quien_empieza() -> bool:
-    """Ask who places the first piece. Returns True if the player goes first."""
-    print("\nThe nomad stares at you: 'Choose wisely who takes the first step...'")
-    respuesta = input("Who places the first piece: you or the alien? (you/alien) [alien]: ")
-    return respuesta.strip().lower() in ('you', 'player', 'y', 'p')
-
-
-def jugar_nivel_2() -> str:
-    """Play the complete Level 2. Returns 'Stella' or 'Alien' depending on who wins."""
-    print("=== Level 2: The Ruins Board ===")
-    print("The nomad alien challenges Stella to the sacred game of the ancient builders.")
-    print(f"{TAMANO}x{TAMANO} board, center square blocked. Whoever can't place a piece loses.\n")
-    mostrar_ejemplo_pieza()
-
-    tablero = tablero_nuevo()
-    mostrar_tablero(tablero)
-
-    jugador_empieza = preguntar_quien_empieza()
-    alien_es_segundo = jugador_empieza
-    ultimo_movimiento_stella: tuple[Orientacion, Celda] | None = None
-    turno_de_stella = jugador_empieza
-
+def play_match(board: list[list[str]], stella_starts: bool, solver: ExactPositionSolver) -> str:
+    stella_turn, last_stella = stella_starts, None
     while True:
-        if turno_de_stella:
-            movimiento_stella = turno_stella(tablero)
-            if movimiento_stella is None:
-                print("\nStella can't place any more pieces. The alien wins.")
-                return 'Alien'
-            ultimo_movimiento_stella = movimiento_stella
-            mostrar_tablero(tablero)
+        mostrar_tablero(board)
+        if stella_turn:
+            move = turno_stella(board)
+            if move is None:
+                return "Keeper"
+            last_stella = move
         else:
-            movimiento_alien = turno_alien(tablero, ultimo_movimiento_stella, alien_es_segundo)
-            if movimiento_alien is None:
-                print("\nThe alien can't place any more pieces. Stella wins!")
-                return 'Stella'
-            print(f"\nThe alien places a piece at {movimiento_alien[1]}.")
-            mostrar_tablero(tablero)
-
-        turno_de_stella = not turno_de_stella
+            move = choose_keeper_move(board, solver, last_stella)
+            if move is None:
+                return "Stella"
+            colocar(board, *move, KEEPER)
+            print("\nThe keeper places an ancient stone.")
+        stella_turn = not stella_turn
 
 
-if __name__ == '__main__':
+def jugar_nivel_2() -> None:
+    solver, phase = ExactPositionSolver(), LevelPhase.DISCOVERY
+    print("=== Level 2: The Ruins Board ===")
+    while phase is not LevelPhase.COMPLETED:
+        if phase is LevelPhase.DISCOVERY:
+            stella_starts = input("Who starts? (stella/keeper) [keeper]: ").strip().lower() in {"stella", "s"}
+            if play_match(tablero_nuevo(), stella_starts, solver) != "Stella":
+                print("Stella has no legal placement. Try the discovery match again.\n")
+                continue
+            print("\nThe keeper studies the stones.\nAgain.\n")
+            phase = LevelPhase.PROOF
+        else:
+            if play_match(tablero_nuevo(random.choice(PROOF_PRESETS)), False, solver) != "Stella":
+                print("Proof failed. Retrying a short proof board.\n")
+                continue
+            phase = LevelPhase.COMPLETED
+    print("The keeper accepts Stella's answer.")
+
+
+if __name__ == "__main__":
     jugar_nivel_2()

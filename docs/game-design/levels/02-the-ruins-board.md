@@ -6,19 +6,19 @@ The station archive leads Stella to the ruins of an extinct civilization. Its la
 
 ## Player-Facing Objective
 
-Choose who starts, then outlast the alien by placing legal stone pieces until the alien has no move.
+Win a Discovery Match, then prove the same structural idea on a shorter prepared ruin board. One victory is not enough to complete the level.
 
 ## Interaction
 
-Before play, the player chooses whether Stella or the alien takes the first turn. On Stella's turns, the player selects four board cells that form an L tetromino.
+The Discovery Match begins with a choice between Stella and the Keeper starting. On Stella's turns, the player selects four board cells that form an L tetromino. Winning Discovery advances immediately to a shorter Proof Trial in which the Keeper starts from a partially occupied board; losing Proof retries Proof without replaying Discovery.
 
 ## Visual and UI Direction
 
 - Frame the board as a close-up ceremonial stone surface inside forest-covered alien ruins, using Palenque-inspired architecture, carved reliefs, and geometric motifs as the approved visual reference.
 - The 7×7 grid must remain immediately readable above the environmental detail. Make the blocked centre look like an immovable carved stone, visually distinct from both free cells and placed pieces.
-- Present the starting-order choice before the first placement and keep the chosen order visible once play begins.
+- Present the starting-order choice before Discovery and keep the chosen order visible once play begins. Proof always shows `Keeper → Stella` and does not ask again.
 - Use pointer selection for the four cells, with a clear L-shaped placement preview and an explicit confirm action. Invalid footprints, overlaps, and out-of-bounds cells should be rejected visually before confirmation.
-- Keep Stella's and the alien's pieces visually distinct, and make the active participant obvious without highlighting rotational pairs or otherwise revealing the mirror strategy.
+- Use Stella and Keeper colours only while the most recent move is being previewed and read. Then fade every committed piece to the same neutral ancient-stone state so ownership does not expose rotational pairs. Keep the active participant obvious in the status card.
 - The alien nomad and ruin scenery may frame the board, but neither should obscure cell boundaries or legal placement feedback.
 
 ## Rules
@@ -28,16 +28,18 @@ Before play, the player chooses whether Stella or the alien takes the first turn
 - Pieces may be rotated and reflected.
 - Players alternate placing one piece in unoccupied cells.
 - Pieces may not overlap, cover the blocked centre, or extend beyond the board.
-- The player chooses whether Stella or the alien starts.
+- The player chooses whether Stella or the Keeper starts in Discovery; the Keeper always starts Proof.
 - A player with no legal placement loses.
+- Winning Discovery advances to Proof rather than completing the level.
+- Proof begins from one of several verified 180-degree-balanced partially occupied boards.
 
 ## Win Condition
 
-Leave the alien with no legal placement on its turn.
+Leave the Keeper with no legal placement in both Discovery and the subsequent Proof Trial.
 
 ## Loss Condition
 
-Have no legal placement on Stella's turn.
+Have no legal placement on Stella's turn. Discovery failure restarts at its starting-order choice; Proof failure offers a cheap Proof retry.
 
 ## Developer Design
 
@@ -47,28 +49,28 @@ The board and blocked centre create 180-degree rotational symmetry. Turn order d
 
 ### Optimal Strategy
 
-Choose to move second. After every opposing placement, place the matching L tetromino rotated 180 degrees around the blocked centre. The centre prevents a legal piece from occupying the symmetry point, so the mirrored response remains distinct and available under correct play.
+Moving second on a 180-degree-balanced board guarantees a response by rotating the opponent's placement around the blocked centre. That pairing is a guaranteed strategy, not a claim that the literal mirror is the only winning move in every reachable position. Any legal move that preserves a forced win remains valid.
 
 ### Bot / System Behaviour
 
-When the alien is second, it mirrors Stella's previous move and therefore plays optimally. When the alien is first, it chooses a legal opening but cannot defeat a player who maintains the rotational pairing.
+The Keeper evaluates strategic occupancy rather than ownership colours. A bitboard solver classifies reduced positions exactly, uses square symmetries for memoization, and recognizes balanced boards through the proven 180-degree pairing theorem. On early positions too large for unrestricted runtime search, the Keeper uses theorem-backed symmetry restoration when available and a deterministic resistance policy otherwise. It prefers a non-obvious proven winning move over a literal mirror whenever the solver has one, but never sacrifices a forced win merely to hide the pattern.
 
 ### Anti-Luck / Anti-Bruteforce Behaviour
 
-The player explicitly chooses the starting order; it is never assigned randomly. If Stella chooses the strategically weaker order, the alien's mirrored responses consistently expose that decision rather than allowing a lucky sequence of weak bot moves.
+The player explicitly chooses the Discovery order; it is never assigned randomly. A single Discovery victory cannot complete the level: the Keeper asks for Proof on one of three shorter, solver-verified balanced boards. Proof always gives the Keeper first move, forcing Stella to transfer the structural idea instead of memorizing one opening.
 
 ### What the Player Is Expected to Discover
 
-The player should discover that starting order matters, the blocked centre makes opposite positions correspond, and responding symmetrically preserves a move whenever the opponent has one.
+The player should discover that starting order and balanced occupancy matter, the blocked centre makes opposite positions correspond, and a structural response can preserve a move whenever the opponent has one. The interface and Keeper dialogue do not state the rule.
 
 ## Implementation Status
 
 ### Python Prototype
 
-Implemented in [`prototypes/python/level_02_ruins_board/tablero_ruinas.py`](../../../prototypes/python/level_02_ruins_board/tablero_ruinas.py), including the starting-order choice and mirrored response logic.
+Implemented in [`prototypes/python/level_02_ruins_board/tablero_ruinas.py`](../../../prototypes/python/level_02_ruins_board/tablero_ruinas.py), including bitboard placement generation, dihedral canonicalization, exact reduced-position evaluation, deterministic Keeper policy, three verified Proof presets, and Discovery → Proof → Completed progression.
 
 ### Unity
 
-Planned. `Level02_RuinsBoard.unity` will hold one `RuinsBoardGame` class with no Unity dependencies (grid state, L-tetromino orientation and placement validation, turn order, and the alien's mirror-strategy response), paired with a single `Level02Controller` MonoBehaviour.
+Implemented as a functional placeholder vertical slice in `Level02_RuinsBoard.unity`. `RuinsBoardGame` and `RuinsBoardSolver` have no Unity dependencies and own occupancy, rules, presets, turn/winner state, exact reduced-position search, symmetry proofs, and Keeper move selection. `Level02Controller` explicitly owns the Discovery, Proof, and Completed progression plus selection, previews, starting order, neutralized committed stones, result UI, and phase-appropriate retry.
 
-The 7×7 board is a built-in `GridLayoutGroup` of plain `Button` cells rather than a custom grid script. The player taps up to four cells, confirms, and the controller validates the shape against the same orientation set used by `tablero_ruinas.py`. The starting-order choice is two buttons shown before the first placement. `RuinsBoardGame` should get EditMode coverage for shape validation and the mirror response, mirroring the Level 4 pattern.
+The placeholder scene uses a built-in `GridLayoutGroup` with 49 plain `Button` cells generated and wired by the editor-only `Level02SceneBuilder`. `BoardCellView` stores only coordinate and semantic visual state. EditMode coverage exercises the model and strategy, non-mirror preference, phase transitions, neutral stones, Proof retry, controller interaction, and serialized scene structure.
