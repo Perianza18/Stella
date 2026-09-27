@@ -9,9 +9,6 @@ EditorBuildSettings:
     path: Assets/_Stella/Scenes/Level04_KrikGreeting.unity
     guid: 3470b3cc4ac1349eb843ca7aa9282765
   - enabled: 1
-    path: Assets/_Stella/Scenes/Level02_RuinsBoard.unity
-    guid: 472784ed9b250461ab852e962d4a4b1a
-  - enabled: 1
     path: Assets/_Stella/Scenes/Level01_DoubleLock.unity
     guid: a53320218dffb4f948a3ec1df8467f2e
   m_configObjects: {}

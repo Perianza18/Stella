@@ -130,6 +130,12 @@ namespace Stella.Level01
             return Result(feedback, Status, revealed);
         }
 
+        public void ResumePlaying()
+        {
+            if (Status == DoubleLockStatus.Failed || Status == DoubleLockStatus.Completed) return;
+            Status = DoubleLockStatus.Playing;
+        }
+
         public void ResetSequence()
         {
             CurrentLock = 1;

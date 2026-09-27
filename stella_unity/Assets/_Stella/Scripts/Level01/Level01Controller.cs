@@ -221,6 +221,7 @@ namespace Stella.Level01
 
         private void BeginPlaying()
         {
+            game.ResumePlaying();
             inputEnabled = true;
             SetSystemState(game.CurrentLock == 1 ? "LOCK 1 ACTIVE" : "LOCK 2 ACTIVE", true);
             UpdateLockIndicators();
@@ -324,7 +325,7 @@ namespace Stella.Level01
             if (systemCardImage != null) systemCardImage.color = active
                 ? new Color(0.24f, 0.53f, 0.62f, 1f)
                 : new Color(0.39f, 0.22f, 0.25f, 1f);
-            if (stellaStateText != null) stellaStateText.text = inputEnabled ? "READY" : "WAITING";
+            if (stellaStateText != null) stellaStateText.text = "STELLA\n" + (inputEnabled ? "READY" : "WAITING");
             if (stellaCardImage != null) stellaCardImage.color = inputEnabled
                 ? new Color(0.18f, 0.52f, 0.86f, 1f)
                 : new Color(0.28f, 0.33f, 0.37f, 1f);
