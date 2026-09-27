@@ -24,11 +24,13 @@ The player selects one colour for each of four slots, submits the guess, and rea
 ## Rules
 
 - Each code has four slots and uses six available colours.
-- Colours may repeat.
+- Lock 1's hidden code contains four distinct colours; player guesses may still repeat colours.
+- Lock 2's hidden code may contain duplicate colours.
 - Each submitted guess receives separate counts for correct colour in the correct position and correct colour in the wrong position.
 - Each lock allows six counted attempts.
 - The player must open two consecutive locks.
-- Failing either lock restarts the sequence at the first lock.
+- Guessing the first code correctly on the first submission triggers one uncounted beginner's-luck reset for that lock; the replacement code starts again at attempt 1.
+- Failing either lock restarts the full sequence at the first lock with new secrets.
 
 ## Win Condition
 
@@ -68,6 +70,6 @@ Implemented in [`prototypes/python/level_01_double_lock/mastermind.py`](../../..
 
 ### Unity
 
-Planned. `Level01_DoubleLock.unity` will hold one `DoubleLockGame` class with no Unity dependencies (code generation, exact/misplaced scoring, phase and attempt tracking, and the beginner's-luck code replacement), paired with a single `Level01Controller` MonoBehaviour that wires six colour buttons, four slot indicators, and a feedback-pip row built from plain UI `Image` components.
+Implemented in `stella_unity/Assets/_Stella/Scenes/Level01_DoubleLock.unity` with a reproducible `Level01SceneBuilder`. `DoubleLockGame` is a Unity-free model that owns both secrets, exact/misplaced scoring, attempts, beginner's luck, lock progression, and full-sequence reset. Lock 1 is generated without duplicate secret colours; Lock 2 allows duplicates.
 
-Unlike Level 4, this slice needs no custom view or grid-layout scripts: the panel is a fixed, hand-built layout, not a procedurally arranged one. `DoubleLockGame` should get the same kind of EditMode coverage as `KrikGreetingGame`.
+`Level01Controller` owns only the draft guess and presentation wiring: six repeatable colour controls, four editable slots, fixed six-row history, aggregate green/yellow/grey feedback pips, attempt indicators, lock progression, failure reveal/retry, and the final archive-granted state. Lock 1 history clears when Lock 2 begins. The right-side placeholder cards communicate Stella and security-system state without explaining strategy.
