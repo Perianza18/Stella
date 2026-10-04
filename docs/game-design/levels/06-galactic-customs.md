@@ -68,4 +68,6 @@ Implemented in [`prototypes/python/level_06_galactic_customs/aduana_galactica.py
 
 ### Unity
 
-Not started. The Unity project has not been created.
+Implemented in `stella_unity/Assets/_Stella/Scenes/Level06_GalacticCustoms.unity` with a reproducible `Level06SceneBuilder`. `GalacticCustomsGame` is a Unity-free model that owns the live candidate set, battery uses, the adversarial largest-subgroup weighing resolution, and the final guess, mirroring `aduana_galactica.py`.
+
+The player taps suspects in a 27-egg grid to cycle each one through unassigned/left-pan/right-pan, then confirms a weighing once both pans hold equal, non-zero groups. Once the battery is spent or one suspect remains, the same grid switches to a single-selection guess with a confirm button. `GalacticCustomsGame` has EditMode coverage for the equal three-way partition sequence and the adversarial largest-subgroup rule.

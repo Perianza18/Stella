@@ -69,6 +69,6 @@ Implemented in [`prototypes/python/level_05_200_gems/gemas.py`](../../../prototy
 
 ### Unity
 
-Planned. `Level05_200Gems.unity` will hold one `GemsGame` class with no Unity dependencies (the same dynamic losing-position calculation and optimal Guardian move as `gemas.py`), paired with a single `Level05Controller` MonoBehaviour.
+Implemented in `stella_unity/Assets/_Stella/Scenes/Level05_200Gems.unity` with a reproducible `Level05SceneBuilder`. `GemsGame` is a Unity-free model that owns the dynamic losing-position table, the legal take-range, optimal Guardian moves, and turn/winner state, mirroring `gemas.py`.
 
-The amount to take is chosen with a stepper or slider plus a confirm button, not free numeric text entry, and the move history is a simple scrolling text log rather than dedicated history-row prefabs. `GemsGame` should get EditMode coverage for the losing-position table and Guardian move selection, mirroring the Level 4 pattern.
+The amount to take is chosen with a +/- stepper plus a confirm button rather than free numeric text entry, and the move history is a simple scrolling text log. `GemsGame` has EditMode coverage for the losing-position table and Guardian move selection.

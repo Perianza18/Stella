@@ -67,4 +67,6 @@ Implemented in [`prototypes/python/level_03_collector/coleccionista.py`](../../.
 
 ### Unity
 
-Not started. The Unity project has not been created.
+Implemented in `stella_unity/Assets/_Stella/Scenes/Level03_TheCollector.unity` with a reproducible `Level03SceneBuilder`. `CollectorGame` is a Unity-free model that owns both coordinates, the diagonal-restoring Collector response, and turn/winner state, mirroring `coleccionista.py`.
+
+The player picks an axis (row or column) with two buttons, then a reduction amount with a +/- stepper plus a confirm button — the same control shape as Level 5, instead of click-and-drag along the grid. The two-coordinate "holographic table" is a placeholder panel pending real art. `CollectorGame` has EditMode coverage for the diagonal invariant and the Collector's response.
