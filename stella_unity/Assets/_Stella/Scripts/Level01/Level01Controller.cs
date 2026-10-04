@@ -19,7 +19,6 @@ namespace Stella.Level01
             new Color(0.94f, 0.47f, 0.14f, 1f)
         };
 
-        [SerializeField] private Text levelTitle;
         [SerializeField] private Text lock1Label;
         [SerializeField] private Text lock2Label;
         [SerializeField] private Text attemptText;
@@ -63,7 +62,6 @@ namespace Stella.Level01
         internal int SelectedSlotForTests { get { return selectedSlot; } }
 
         public void Configure(
-            Text title,
             Text lockOne,
             Text lockTwo,
             Text attempts,
@@ -82,7 +80,6 @@ namespace Stella.Level01
             Image stellaCard,
             Image systemCard)
         {
-            levelTitle = title;
             lock1Label = lockOne;
             lock2Label = lockTwo;
             attemptText = attempts;
@@ -260,7 +257,7 @@ namespace Stella.Level01
             RenderAttemptIndicators();
             RefreshGuessPresentation();
             if (game == null) return;
-            attemptText.text = "LOCK " + game.CurrentLock + " OF 2 — ATTEMPT " + Math.Min(game.AttemptsUsed + 1, DoubleLockGame.MaxAttempts) + "/6";
+            attemptText.text = "ATTEMPT " + Math.Min(game.AttemptsUsed + 1, DoubleLockGame.MaxAttempts) + "/6";
         }
 
         private void RefreshGuessPresentation()

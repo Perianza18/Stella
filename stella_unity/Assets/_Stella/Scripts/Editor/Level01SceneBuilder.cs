@@ -47,14 +47,12 @@ namespace Stella.EditorTools
             Stretch(background.GetComponent<RectTransform>());
             background.transform.SetAsFirstSibling();
 
-            Text title;
+            CreateTopBar(canvas.transform);
+
             Text lockOne;
             Text lockTwo;
             Text attemptText;
             Text noticeText;
-            CreateTopBar(canvas.transform, out title, out lockOne, out lockTwo, out attemptText, out noticeText);
-            CreateBriefingRegion(canvas.transform);
-
             List<GuessHistoryRowView> historyRows;
             List<Button> slotButtons;
             List<Image> slotSwatches;
@@ -71,6 +69,10 @@ namespace Stella.EditorTools
             CreateMainRegion(
                 canvas.transform,
                 controller,
+                out lockOne,
+                out lockTwo,
+                out attemptText,
+                out noticeText,
                 out historyRows,
                 out slotButtons,
                 out slotSwatches,
@@ -86,7 +88,7 @@ namespace Stella.EditorTools
                 out attemptPips);
 
             controller.Configure(
-                title, lockOne, lockTwo, attemptText, noticeText, systemState, stellaState,
+                lockOne, lockTwo, attemptText, noticeText, systemState, stellaState,
                 attemptPips, historyRows, slotButtons, slotSwatches, colorButtons,
                 clearButton, submitButton, retryPanel, retryButton, stellaCard, systemCard);
 
@@ -119,71 +121,39 @@ namespace Stella.EditorTools
             return canvas;
         }
 
-        private static void CreateTopBar(
-            Transform parent,
-            out Text title,
-            out Text lockOne,
-            out Text lockTwo,
-            out Text attemptText,
-            out Text noticeText)
+        private static void CreateTopBar(Transform parent)
         {
             GameObject top = CreatePanel("TopRegion", parent, PanelBackground);
-            SetAnchors(top.GetComponent<RectTransform>(), new Vector2(0.035f, 0.885f), new Vector2(0.965f, 0.965f));
+            SetAnchors(top.GetComponent<RectTransform>(), new Vector2(0.035f, 0.895f), new Vector2(0.965f, 0.965f));
             HorizontalLayoutGroup layout = top.AddComponent<HorizontalLayoutGroup>();
-            layout.padding = new RectOffset(18, 18, 12, 12);
+            layout.padding = new RectOffset(16, 16, 8, 8);
             layout.spacing = 14f;
+            layout.childAlignment = TextAnchor.MiddleLeft;
             layout.childControlWidth = true;
             layout.childControlHeight = true;
             layout.childForceExpandWidth = false;
             layout.childForceExpandHeight = true;
 
-            title = CreateText("LevelTitle", top.transform, "THE DOUBLE LOCK", 28, TextAnchor.MiddleLeft);
-            title.gameObject.AddComponent<LayoutElement>().preferredWidth = 260f;
-            GameObject progression = CreatePanel("LockProgression", top.transform, new Color(0.12f, 0.18f, 0.20f, 1f));
-            progression.AddComponent<LayoutElement>().preferredWidth = 340f;
-            HorizontalLayoutGroup progressLayout = progression.AddComponent<HorizontalLayoutGroup>();
-            progressLayout.padding = new RectOffset(12, 12, 8, 8);
-            progressLayout.spacing = 14f;
-            progressLayout.childControlWidth = true;
-            progressLayout.childControlHeight = true;
-            progressLayout.childForceExpandWidth = false;
-            lockOne = CreateText("Lock1Label", progression.transform, "LOCK 1 ACTIVE", 20, TextAnchor.MiddleCenter);
-            lockOne.gameObject.AddComponent<LayoutElement>().minWidth = 150f;
-            CreateText("LockConnector", progression.transform, "—", 22, TextAnchor.MiddleCenter).gameObject.AddComponent<LayoutElement>().preferredWidth = 24f;
-            lockTwo = CreateText("Lock2Label", progression.transform, "LOCK 2", 20, TextAnchor.MiddleCenter);
-            lockTwo.gameObject.AddComponent<LayoutElement>().minWidth = 110f;
-            attemptText = CreateText("AttemptText", top.transform, "LOCK 1 OF 2 — ATTEMPT 1/6", 21, TextAnchor.MiddleCenter);
-            attemptText.gameObject.AddComponent<LayoutElement>().preferredWidth = 300f;
-            noticeText = CreateText("NoticeText", top.transform, string.Empty, 20, TextAnchor.MiddleLeft);
-            noticeText.gameObject.AddComponent<LayoutElement>().flexibleWidth = 1f;
-        }
+            // A fixed corner reserved for Stella's expressive portrait (thinking, reacting, etc.).
+            GameObject stellaFace = CreatePanel("StellaFace", top.transform, new Color(0.18f, 0.52f, 0.86f, 1f));
+            SetPreferredSize(stellaFace, new Vector2(64f, 64f));
+            Text stellaFaceLabel = CreateText("StellaFaceLabel", stellaFace.transform, "STELLA", 11, TextAnchor.MiddleCenter);
+            Stretch(stellaFaceLabel.rectTransform, 4f);
 
-        private static void CreateBriefingRegion(Transform parent)
-        {
-            // Just the rules, one line. Stella's own expressive portrait lives in the
-            // "SECURITY STATE" card on the right, not up here — see CreateMainRegion.
-            GameObject briefing = CreatePanel("BriefingRegion", parent, PanelBackground);
-            SetAnchors(briefing.GetComponent<RectTransform>(), new Vector2(0.035f, 0.835f), new Vector2(0.965f, 0.87f));
-            HorizontalLayoutGroup layout = briefing.AddComponent<HorizontalLayoutGroup>();
-            layout.padding = new RectOffset(18, 18, 6, 6);
-            layout.childAlignment = TextAnchor.MiddleLeft;
-            layout.childControlWidth = true;
-            layout.childControlHeight = true;
-            layout.childForceExpandWidth = true;
-            layout.childForceExpandHeight = false;
-
-            Text briefingText = CreateText(
-                "BriefingText",
-                briefing.transform,
-                "Open both security locks by deducing each hidden 4-colour code before your attempts run out.",
-                16,
-                TextAnchor.MiddleLeft);
-            briefingText.gameObject.AddComponent<LayoutElement>().flexibleWidth = 1f;
+            Text rules = CreateText(
+                "RulesText", top.transform,
+                "THE DOUBLE LOCK\nOpen both security locks by deducing each hidden 4-colour code before your attempts run out.",
+                16, TextAnchor.MiddleLeft);
+            rules.gameObject.AddComponent<LayoutElement>().flexibleWidth = 1f;
         }
 
         private static void CreateMainRegion(
             Transform parent,
             Level01Controller controller,
+            out Text lockOne,
+            out Text lockTwo,
+            out Text attemptText,
+            out Text noticeText,
             out List<GuessHistoryRowView> historyRows,
             out List<Button> slotButtons,
             out List<Image> slotSwatches,
@@ -199,7 +169,7 @@ namespace Stella.EditorTools
             out List<Image> attemptPips)
         {
             GameObject main = CreatePanel("MainRegion", parent, PanelBackground);
-            SetAnchors(main.GetComponent<RectTransform>(), new Vector2(0.035f, 0.035f), new Vector2(0.965f, 0.825f));
+            SetAnchors(main.GetComponent<RectTransform>(), new Vector2(0.035f, 0.035f), new Vector2(0.965f, 0.875f));
             HorizontalLayoutGroup mainLayout = main.AddComponent<HorizontalLayoutGroup>();
             mainLayout.padding = new RectOffset(16, 16, 14, 14);
             mainLayout.spacing = 18f;
@@ -208,8 +178,8 @@ namespace Stella.EditorTools
             mainLayout.childForceExpandWidth = false;
             mainLayout.childForceExpandHeight = true;
 
-            // The attempt counter already lives in the top bar ("ATTEMPT 1/6") and in the
-            // numbered history rows below, so there is no separate attempts sidebar here.
+            // The attempt counter lives in the combination panel's lock-progress row and in
+            // the numbered history rows below, so there is no separate attempts sidebar here.
             attemptPips = new List<Image>();
 
             // Left: the vault's log of previous attempts.
@@ -248,7 +218,7 @@ namespace Stella.EditorTools
             combinationElement.minWidth = 440f;
             VerticalLayoutGroup combinationLayout = combination.AddComponent<VerticalLayoutGroup>();
             combinationLayout.padding = new RectOffset(16, 16, 10, 10);
-            combinationLayout.spacing = 8f;
+            combinationLayout.spacing = 6f;
             combinationLayout.childAlignment = TextAnchor.UpperCenter;
             combinationLayout.childControlWidth = true;
             combinationLayout.childControlHeight = true;
@@ -257,6 +227,27 @@ namespace Stella.EditorTools
 
             CreateText("CombinationHeading", combination.transform, "ENTER COMBINATION", 19, TextAnchor.MiddleCenter)
                 .gameObject.AddComponent<LayoutElement>().preferredHeight = 24f;
+
+            GameObject progression = CreatePanel("LockProgression", combination.transform, new Color(0.12f, 0.18f, 0.20f, 1f));
+            LayoutElement progressionElement = progression.AddComponent<LayoutElement>();
+            progressionElement.preferredHeight = 36f;
+            HorizontalLayoutGroup progressLayout = progression.AddComponent<HorizontalLayoutGroup>();
+            progressLayout.padding = new RectOffset(10, 10, 4, 4);
+            progressLayout.spacing = 10f;
+            progressLayout.childAlignment = TextAnchor.MiddleCenter;
+            progressLayout.childControlWidth = true;
+            progressLayout.childControlHeight = true;
+            progressLayout.childForceExpandWidth = false;
+            lockOne = CreateText("Lock1Label", progression.transform, "LOCK 1 ACTIVE", 16, TextAnchor.MiddleCenter);
+            lockOne.gameObject.AddComponent<LayoutElement>().minWidth = 120f;
+            CreateText("LockConnector", progression.transform, "—", 18, TextAnchor.MiddleCenter).gameObject.AddComponent<LayoutElement>().preferredWidth = 18f;
+            lockTwo = CreateText("Lock2Label", progression.transform, "LOCK 2", 16, TextAnchor.MiddleCenter);
+            lockTwo.gameObject.AddComponent<LayoutElement>().minWidth = 90f;
+            attemptText = CreateText("AttemptText", progression.transform, "ATTEMPT 1/6", 16, TextAnchor.MiddleCenter);
+            attemptText.gameObject.AddComponent<LayoutElement>().minWidth = 120f;
+
+            noticeText = CreateText("NoticeText", combination.transform, string.Empty, 16, TextAnchor.MiddleCenter);
+            noticeText.gameObject.AddComponent<LayoutElement>().preferredHeight = 36f;
 
             GameObject active = CreatePanel("ActiveGuessPanel", combination.transform, new Color(0.10f, 0.15f, 0.17f, 1f));
             LayoutElement activeElement = active.AddComponent<LayoutElement>();
@@ -322,7 +313,7 @@ namespace Stella.EditorTools
             // not just a status label.
             GameObject statusRow = new GameObject("StatusRow", typeof(RectTransform), typeof(HorizontalLayoutGroup), typeof(LayoutElement));
             statusRow.transform.SetParent(combination.transform, false);
-            statusRow.GetComponent<LayoutElement>().preferredHeight = 180f;
+            statusRow.GetComponent<LayoutElement>().preferredHeight = 150f;
             HorizontalLayoutGroup statusRowLayout = statusRow.GetComponent<HorizontalLayoutGroup>();
             statusRowLayout.spacing = 10f;
             statusRowLayout.childControlWidth = true;
